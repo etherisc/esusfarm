@@ -1,4 +1,4 @@
-# WFP Accelerator Platform
+# Etherisc Platform for eSusFarm
 
 ## Etherisc Data Architecture
 
@@ -32,18 +32,15 @@ classDiagram
     Risk --o Location
 
     class Person {
-        Wallet
         ID ()
-        Location ID ()
         First Name ()
         Last Name ()
-        Sex ()
-        Mobile Phone ()
+        Gender ()
     }
 
     class Policy {
         ID
-        Wallet
+        Person ID ()
         Risk ID
         Subscription date
         Sum Insured amount
@@ -57,101 +54,174 @@ classDiagram
 
     class Risk {
         ID
-        ArcView Project ID ()
         Config ID
         Location ID
         Crop
-        Index reference value
-        Index end of season value
-        Payout trigger type
-        Client ()
+        Deductible
+        Draught Loss
+        Excess Rainfall Loss
+        Total Loss
+        Payout
+        Final Payout
     }
 
     class Config {
         ID
         Year
+        Region
         Start of season
         End of season
-        Index type
-        Data source
-        Trigger severe level
-        Trigger severe payout
-        Trigger medium level
-        Trigger medium payout
-        Trigger weak level
-        Trigger weak payout
+        Franchise
+        Client () do we need this?
     }
 
     class Location {
         ID
         Region ()
-        Province ()
-        Department ()
-        Village ()
+        District ()
+        Subcounty ()
+        Latitude ()
+        Longitude ()
     }
 ```
 
 
-## Onboarding Data
+## Data Flow
 
-The data below is shared at the beginning of the season
+The product definition data below is shared before the beginning of the season
 
-```mermaid
-classDiagram
+* INPUT Location
+* INPUT Config
+* INPUT Risk (with deductible, without loss and payout values)
 
-    class OnboardingData {
-        Client (offchain, not available)
-        ArcView Project ID (offchain, not available)
-        Year
-        Start of season
-        End of season
-        Index type
-        Data Source
-        Risk ID
-        Location ID
-        Region (offchain)
-        Province (offchain)
-        Village (offchain)
-        Crop 
-        Farmer ID
-        Farmer wallet
-        Sex
-        First name (offchain, not available)
-        Last name (offchain, not available)
-        Mobile phone (offchain, not available)
-        Policy ID (offchain)
-        Process ID
-        Subscription date
-        Premium amount
-        Sum Insured amount
-        Trigger severe
-        Payout severe
-        Trigger medium
-        Payout medium
-        Trigger weak
-        Payout weak
-        Index reference
-    }
-```
+The onboarding data below is shared during the beginning of the season
 
-## Payout Schedule
+* INPUT Person
+* INPUT Policy
 
-The data below is shared at the end of the season.
-Once payouts have been executed the data below is amended by the field `Execution date`.
+The data below is shared at the end of season (as soon as loss/payout data becomes available)
 
-```mermaid
-classDiagram
+* INPUT Risk (loss and payout values)
 
-    class PayoutSchedule {
-        <<as onboarding data>>
-        Index end of season
-        Trigger type
-        Payout Type
-        Payout amount
-    }
-```
+At the end of the season the Etherisc platform provides the following data
+
+* OUTPUT Payout data per policy
+
 
 ## API Details
+
+example values taken from https://public.tableau.com/app/profile/parametric.solutions/viz/Index_Monitoring_Maize_2023_B_Uganda/IndexMonitroing
+
+### Location API (Example)
+
+```
+POST /api/v1/location
+```
+
+Request Body 
+```json
+{
+    "id": "345abc",
+    "region": "Northern",
+    "district": "AGAGO",
+    "subcounty": "Wol",
+    "latitude": 3.198,
+    "longitude": 33.111
+}
+```
+
+Data field comments:
+
+* `id`: Existing system ID or value derived from it
+
+Validations:
+
+* id: not null, unique
+* region: element of fixed set of regions
+* district: element of fixed set of districts
+* subcounty: not null, unique
+* latitude: float value within country bounding box
+* longitude: float value within country bounding box
+
+### Config API (Example)
+
+```
+POST /api/v1/config
+```
+
+Request Body 
+```json
+{
+    "id": "234abc",
+    "region": "Northern",
+    "start_of_season": "2024-03-21",
+    "end_of_season": "2024-07-28",
+    "franchise": 0.1
+}
+```
+
+Data field comments:
+
+* `id`: Existing system ID or value derived from it
+
+Validations:
+
+* id: not null, unique
+* region: element of fixed set of regions
+* start of season: >= 2024, valid iso date
+* end of season: within meaningful range given start data
+* franchise: float, within meaningful range
+
+### Risk API (Example)
+
+```
+POST /api/v1/risk
+```
+
+Request Body 
+```json
+{
+    "id": "123abc",
+    "config_id": "234abc",
+    "location_id": "345abc",
+    "crop": "Maize",
+    "deductible": 0.1
+}
+```
+
+Data field comments:
+
+* `id`: Existing system ID or value derived from it
+
+Validations:
+
+* id: not null, unique
+* config_id: existing config
+* location_id: existing location
+* crop: element of fixed set of crops
+* deductible: float, within meaningful range
+
+Endpoint to provide end of season data
+
+```
+PUT /api/v1/risk/risk_id
+```
+
+Request Body 
+```json
+{
+    "drought_loss": 0.32,
+    "excess_rainfall_loss": 0.18,
+    "total_loss": 0.34,
+}
+```
+
+Validations:
+
+* risk id: existing risk id
+* drought loss: float, within meaningufl range
+* excess rainfall loss: float, within meaningufl range
+* total loss: to be defined (can this be derived from the above values?)
 
 ### Person API (Example)
 
@@ -162,33 +232,68 @@ POST /api/v1/person
 Request Body 
 ```json
 {
-    "id": "123abc",
+    "id": "333abc",
     "first_name": "Yentabpoa",
     "last_name": "Bokoum",
-    "sex": "F",
-    "mobile_phone": "55555555"
+    "gender": "F",
 }
 ```
 
 Data field comments:
 
-* `id`: Yelen system ID
+* `id`: Existing system ID or value derived from it
 
 Validations:
 
-* id: not null, unique, regexp
-* firstName: not null
-* lastName: not null
-* mobilePhone: null or regexp
-* sex: null or regexp
+* id: not null, unique
+* gender: null or regexp
 
-Response Body
+
+### Policy API (Example)
+
+Things to define/questios
+* Dealing with application states. Assumption is we don't need this for the MVP
+* Multiple policies per person. Assumption is we have one policy per person for the MVP
+* Link between sum insured and premium. To be calculated in smart contract (eg via ratio in risk)?
+
+```
+POST /api/v1/policy
+```
+
+Request Body 
 ```json
 {
-    "id": "123abc",
-    "wallet": "0xaD738e6557fa12636063fe3b5D03F9Cd018b79f8"
+    "id": "765abc",
+    "person_id": "333abc",
+    "risk_id": "123abc",
+    "subscription": "2024-02-15",
+    "sum_insured": 200000,
+    "premium": 20000,
 }
 ```
+
+Data field comments:
+
+* `id`: Existing system ID or value derived from it
+
+Validations:
+
+* id: not null, unique
+* person id: person existing
+* risk id: risk existing
+* subscription: to be defined
+* sum insured: float, meaningful range (tbd)
+* premium: float, meaningful range
+
+    class Policy {
+        ID
+        Person ID ()
+        Risk ID
+        Subscription date
+        Sum Insured amount
+        Premium amount
+    }
+
 ## Python Setup
 
 After a devcontainer rebuild you might need to uninstall/reinstall the right python packages first
