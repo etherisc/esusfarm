@@ -1,0 +1,10 @@
+# brownie networks import celo-network.yaml True
+# brownie console --network=celo-test 
+live:
+- name: Polygon-Alchemy
+  networks:
+  - chainid: 137
+    explorer: https://api.polygonscan.com/api
+    host:  https://polygon-mainnet.g.alchemy.com/v2/$WEB3_ALCHEMY_PROJECT_ID
+    id: polygon-alchemy
+    name: Mainnet

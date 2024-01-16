@@ -1,0 +1,44 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "esusfarm",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"dockerComposeFile": "docker-compose.yaml",
+    "service": "api",
+	"workspaceFolder": "/workspaces/esusfarm",
+    
+	"features": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [8000, "mongo:27017"],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "pip install --upgrade pip && pip install pipenv && pipenv sync",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// "github.vscode-pull-request-github",
+				// "github.copilot",
+				// "github.copilot-chat",
+				"mhutchie.git-graph",
+				"eamodio.gitlens",
+				"gruntfuggly.todo-tree",
+				"aaron-bond.better-comments",
+				"oderwat.indent-rainbow",
+				"johnpapa.vscode-peacock",
+				"vikas.code-navigation",
+				"vscode-icons-team.vscode-icons",
+				"RaillyHugo.one-hunter"
+				//"NomicFoundation.hardhat-solidity", - currently got issues with foundry remappings
+			]
+		}
+	}
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
