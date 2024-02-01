@@ -1,5 +1,46 @@
 # Etherisc Platform for eSusFarm
 
+## Etherisc Integration Architecture
+
+Use https://www.plantuml.com/ to render the diagram below.
+
+```
+@startuml
+package "AIC" as insurer {
+
+}
+
+package "eSusFarm Platform" as esus {
+  component "eSusFarm Backend" as backend
+}
+
+package "Etherisc Platform" as etherisc {
+
+  package "Off-Chain" as offchain {
+    component "API Server" as api
+    component "Analytics" as analytics
+    database "Mongo DB" as db
+  }
+
+  package "On-Chain (Polygon)" as onchain {
+    component "Crop Product\nSmart Contract" as product
+    component "Crop Riskpool\nSmart Contract" as pool
+    component "GIF Instance\nSmart Contracts" as instance
+  }
+
+  backend -right-> insurer
+  backend --> api
+  api --> db
+  analytics --> db
+  api --> product
+  api --> instance
+  product -right-> pool
+  product --> instance
+  pool --> instance
+}
+@enduml
+```
+
 ## Etherisc Data Architecture
 
 ### Model Definition
@@ -285,14 +326,8 @@ Validations:
 * sum insured: float, meaningful range (tbd)
 * premium: float, meaningful range
 
-    class Policy {
-        ID
-        Person ID ()
-        Risk ID
-        Subscription date
-        Sum Insured amount
-        Premium amount
-    }
+amounts in ugx
+https://wise.com/gb/currency-converter/ugx-to-eur-rate
 
 ## Python Setup
 
