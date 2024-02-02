@@ -423,8 +423,6 @@ brownie networks import polygon-network.yaml
 brownie console --network=polygon-alchemy
 ```
 
-
-
 ## Upload Data
 
 ```bash
