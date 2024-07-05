@@ -3,7 +3,8 @@ from fastapi.routing import APIRouter
 
 from server.config import settings
 from server.model.location import LocationIn, LocationOut
-from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
+from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection, get_mongo_collection
+from util.mongo import get_collection
 
 from data.offchain_data import load_yelen_data, get_location, get_locations
 from data.onchain_data import get_location_id, to_hex
@@ -12,33 +13,26 @@ from util.logging import get_logger
 
 PATH_PREFIX = "/location"
 TAGS = ["Location"]
-MONGO = False
 
 # setup for module
 logger = get_logger()
 router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 
-if MONGO:
-    @router.post("/", response_model=LocationOut, response_description="Location data created")
-    async def create_location(location: LocationIn):
-        return create_in_collection(location, LocationOut)
-else:
-    load_yelen_data()
+@router.post("/", response_model=LocationOut, response_description="Location data created")
+async def create_location(location: LocationIn):
+    logger.info(f"POST {PATH_PREFIX} {location}")
+    return create_in_collection(location, LocationOut)
+
 
 @router.get("/{location_nano_id}", response_description="Location data obtained")
 async def get_single_location(location_nano_id: str):
-    if MONGO:
-        return find_in_collection(location_nano_id, LocationOut)
-    else:
-        return get_location(location_nano_id)
+    return find_in_collection(location_nano_id, LocationOut)
 
 
 @router.get("/all/json", response_model=list[LocationOut], response_description="Locations obtained")
 async def get_all_locations(page: int = 1, items: int = settings.MONGO_DOCUMENTS_PER_PAGE):
-    if MONGO:
-        return get_list_of_models_in_collection(LocationOut, page, items)
-    else:
-        return [LocationOut.parse_obj(location) for location in get_locations(page, items)]
+    logger.info(f"GET {PATH_PREFIX}/all/json")
+    return get_list_of_models_in_collection(LocationOut, page, items)
 
 
 @router.get("/all/csv", response_class=FileResponse, response_description="Locations csv created")
@@ -48,16 +42,6 @@ async def get_all_locations_csv(
     page: int = 1, 
     items: int = settings.MONGO_DOCUMENTS_PER_PAGE
 ):
-    if MONGO:
-        documents = get_list_of_dicts_in_collection(LocationOut, page, items)
-        field_list = get_field_list(fields)
-        return write_csv_temp_file(field_list, documents, delimiter)
-    else:
-        locations = get_locations(page, items)
-        field_list = get_field_list(fields)
-        csv_file_path = write_csv_temp_file(field_list, locations, delimiter)
-
-        response = FileResponse(csv_file_path, media_type="text/csv")
-        response.headers["Content-Disposition"] = "attachment; filename=locations.csv"
-
-        return response
+    documents = get_list_of_dicts_in_collection(LocationOut, page, items)
+    field_list = get_field_list(fields)
+    return write_csv_temp_file(field_list, documents, delimiter)

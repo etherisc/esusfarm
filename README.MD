@@ -443,6 +443,7 @@ data['Reporting PAM'][2]
 
 ```bash
 cd app
+# pip install -r requirements.txt
 python3 main.py
 ```
 
@@ -453,28 +454,28 @@ The actual port is shown in the ports tab of VSCode.
 
 ```
 # create dokku application 
-dokku apps:create wfp-api
+dokku apps:create esusfarm-api
 
 # add new domain and remove default domain
-dokku domains:add wfp-api api.wfp.etherisc.com
-dokku domains:remove wfp-api wfp-api.wfp.etherisc.com
+dokku domains:add esusfarm-api api.esusfarm.etherisc.com
+dokku domains:remove esusfarm-api esusfarm-api.esusfarm.etherisc.com
 
 # set correct proxy ports for http and https
-dokku ports:add wfp-api https:443:8000
-dokku ports:add wfp-api http:80:8000
+dokku ports:add esusfarm-api https:443:8000
+dokku ports:add esusfarm-api http:80:8000
 
 # create mongo service
-dokku mongo:create mongo-wfp-api
+dokku mongo:create mongo-esusfarm-api
 
 # link the mongo service to the app
-dokku mongo:link mongo-wfp-api wfp-api
+dokku mongo:link mongo-esusfarm-api esusfarm-api
 
 # now push deployment via git 
-# 1. add new git remote 'git remote add dokku dokku@<host>:wfp-api'
+# 1. add new git remote 'git remote add dokku dokku@<host>:esusfarm-api'
 # 2. 'git push dokku master:main'
 
 # enable let's encrypt for https certificates
-dokku letsencrypt:enable wfp-api
+dokku letsencrypt:enable esusfarm-api
 
 # app should be ready now - open in browser
 ```
@@ -488,7 +489,7 @@ On local machine
 git push dokku master:main
 ```
 
-Check update in browser `https://api.wfp.etherisc.com/docs`
+Check update in browser `https://api.esusfarm.etherisc.com/docs`
 
 ### Check MongoDB
 
@@ -499,7 +500,7 @@ ssh -L 27017:localhost:29378 matthias@162.55.209.69
 
 Verify that MongoDB is exposed under the expected port
 ```
-dokku mongo:info mongo-wfp-api
+dokku mongo:info mongo-esusfarm-api
 ```
 Browse the database using MongoDB Compass 
 
@@ -512,28 +513,28 @@ ssh matthias@162.55.209.69
 
 On remote server
 ```bash
-# show all apps (should have wfp-api in its list)
+# show all apps (should have esusfarm-api in its list)
 dokku apps:list
 # show log
-dokku logs wfp-api
+dokku logs esusfarm-api
 # show defined env variables
-dokku config wfp-api
+dokku config esusfarm-api
 # set/adapt env variables
-dokku config:set wfp-api MAPPER_ADDRESS=0x9C0F71971BA7768EADD2421d9Cf2CF9ADA326B84
+dokku config:set esusfarm-api MAPPER_ADDRESS=0x9C0F71971BA7768EADD2421d9Cf2CF9ADA326B84
 ```
 
 
 ### Dokku mongo debug connection
 
-Example using service _mongo-wfp-api_:
+Example using service _mongo-esusfarm-api_:
 
-1. Expose mongo port on dokku `dokku mongo:expose mongo-wfp-api`
-1. Find the exposed port in the output above or via `dokku mongo:info mongo-wfp-api`
+1. Expose mongo port on dokku `dokku mongo:expose mongo-esusfarm-api`
+1. Find the exposed port in the output above or via `dokku mongo:info mongo-esusfarm-api`
 
 ```
-dokku mongo:info mongo-wfp-api | grep 'Exposed ports:' | sed 's/[[:space:]]\+/ /g' | cut -d' ' -f4 | cut -d'>' -f2
+dokku mongo:info mongo-esusfarm-api | grep 'Exposed ports:' | sed 's/[[:space:]]\+/ /g' | cut -d' ' -f4 | cut -d'>' -f2
 ```
 
 1. Open ssh tunnel with dokku mongo port forward `ssh -L <remote-port>:localhost:27017 user@host` (format <remote-port:local-host:local-port>)
 1. Now connect with mongo client of choice using `localhost:6479` as host and the password mentioned in mongo info
-1. When finished, close the ssh tunnel by logging out of the ssh shell and unexpose the mongo port `dokku mongo:unexpose mongo-wfp-api`
+1. When finished, close the ssh tunnel by logging out of the ssh shell and unexpose the mongo port `dokku mongo:unexpose mongo-esusfarm-api`

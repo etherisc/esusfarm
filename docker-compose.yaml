@@ -1,17 +1,16 @@
 version: "3.8"
 
 services:
-  mongodb_wfp:
+  mongodb:
     image: mongo:latest
-    container_name: mongodb_wfp
+    container_name: mongodb_esusfarm
     # environment:
     #   MONGO_INITDB_ROOT_USERNAME: root
     #   MONGO_INITDB_ROOT_PASSWORD: s3cret
     ports:
-      # 310x reserved for acre
-      - "3200:27017"
+      - "27017:27017"
     volumes:
-    - /Users/docker/data/mongodb_wfp:/data/db
+    - mongodb_data:/data/db
 
-# volumes:
-#   mongodb_data:
+volumes:
+  mongodb_data:

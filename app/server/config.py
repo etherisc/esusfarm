@@ -6,16 +6,15 @@ class Settings(BaseSettings):
     APP_DEBUG: bool = False
 
     # model fields settings
-    MODEL_ID_ATTRIBUTE: str = "id"
+    # MODEL_ID_ATTRIBUTE: str = "id"
     MODEL_CSV_DELIMITER: str = ";"
     MODEL_CSV_LOCATION_FIELDS: str = "nanoId,onchainId,country,region,province,department,village,latitude,longitude,openstreetmap,coordinatesLevel"
-    MODEL_CSV_POLICY_FIELDS: str = "yelenId,year,seasonStart,seasonEnd,indexType,locationNanoId,region,province,department,city,beneficiarySex,subscriptionDate,premium,sumInsured,triggerSevere,payoutSevere,triggerMedium,payoutMedium,triggerLow,payoutLow,indexReferenceValue,indexEndOfSeasonValue,indexRatio,payoutEstimated"
+    MODEL_CSV_POLICY_FIELDS: str = "id  ,year,seasonStart,seasonEnd,indexType,locationNanoId,region,province,department,city,beneficiarySex,subscriptionDate,premium,sumInsured,triggerSevere,payoutSevere,triggerMedium,payoutMedium,triggerLow,payoutLow,indexReferenceValue,indexEndOfSeasonValue,indexRatio,payoutEstimated"
     MODEL_CSV_RISK_FIELDS: str = "id,isValid,configId,locationId,crop,indexReferenceValue,indexSeasonValue,indexIsFinal,createdAt,updatedAt"
     MODEL_CSV_CONFIG_FIELDS: str = "valid,name,year,startOfSeason,endOfSeason,indexType,dataSource,triggerSevereLevel,triggerSeverePayout,triggerMediumLevel,triggerMediumPayout,triggerWeakLevel,triggerWeakPayout,createdAt,updatedAt"
 
     # mongodb settings
     MONGO_ID_ATTRIBUTE: str = "_id"
-    MONGO_URL: str = "mongodb://host.docker.internal:3200/mongo_wfp_api"
     MONGO_CREATE_COLLECTIONS: bool = True
     MONGO_DOCUMENTS_PER_PAGE: int = 5
 

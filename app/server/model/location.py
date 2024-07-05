@@ -1,36 +1,36 @@
 import iso3166
 
-from pydantic import field_validator
+from pydantic import field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
 
 EXAMPLE_IN = {
-    "country": "BF",
-    "region": "Centre Nord",
-    "province": "Sanmatenga",
-    "department": "KAYA",
-    "village": "Basberike",
-    "latitude": 13.148262,
-    "longitude": -1.0357304,
-    "openstreetmap": "https://www.openstreetmap.org/#map=14/13.148262/-1.0357304",
-    "coordinatesLevel": "VILLAGE"
-
+    "country": "UG",
+    "zone": "Central",
+    "district": "MASAKA",
+    "subcounty": "Kabonera",
+    "village": "Kiziba",
+    "latitude": -0.4365,
+    "longitude": 31.6780,
+    "openstreetmap": "https://www.openstreetmap.org/#map=14/-0.4365/31.6780",
+    "coordinatesLevel": "VILLAGE",
+    "onchainId": ""
 }
 
 EXAMPLE_OUT = EXAMPLE_IN
-EXAMPLE_OUT["nanoId"] = "jxmbyupsh1rv"
-EXAMPLE_OUT["onchainId"] = "0x9492fef57f9e671753f92b78a9958ada"
+EXAMPLE_OUT["_id"] = "jxmbyupsh1rv"
 
 class LocationIn(MongoModel):
     country: str
-    region: str
-    province: str
-    department: str
+    zone: str
+    district: str
+    subcounty: str
     village: str
     latitude: float
     longitude: float
     openstreetmap: str
     coordinatesLevel: str
+    onchainId: str = Field(default=None)
 
     @field_validator('country')
     @classmethod
@@ -50,8 +50,8 @@ class LocationIn(MongoModel):
         }
 
 class LocationOut(LocationIn):
-    nanoId: str
-    onchainId: str
+    _id: str
+    id: str = Field(default=None)
 
     class Config:
         json_schema_extra = {

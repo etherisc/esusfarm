@@ -1,3 +1,7 @@
+import sys
+
+from os import getenv
+
 from fastapi import HTTPException
 from pydantic import BaseModel
 from pymongo import MongoClient
@@ -19,10 +23,7 @@ class MongoModel(BaseModel):
         model = this.dict()
         model_id = None
 
-        if settings.MODEL_ID_ATTRIBUTE in model:
-            model[settings.MONGO_ID_ATTRIBUTE] = model[settings.MODEL_ID_ATTRIBUTE]
-            del model[settings.MODEL_ID_ATTRIBUTE]
-        else:
+        if not settings.MONGO_ID_ATTRIBUTE in model:
             model[settings.MONGO_ID_ATTRIBUTE] = generate_nanoid()
         
         return model
@@ -32,16 +33,13 @@ class MongoModel(BaseModel):
         if model is None:
             raise_with_log(ValueError, f"None not allowed as mongo dict model")
 
-        if not settings.MONGO_ID_ATTRIBUTE in model:
-            raise_with_log(ValueError, f"'{settings.MONGO_ID_ATTRIBUTE}' not in mongo dict model")
+        id_attr = settings.MONGO_ID_ATTRIBUTE
+        if not id_attr in model:
+            raise_with_log(ValueError, f"Id attribugte '{id_attr}' missing in dict")
 
-        if not settings.MODEL_ID_ATTRIBUTE in cls.model_fields:
-            raise_with_log(ValueError, f"class {cls} is missing an {settings.MODEL_ID_ATTRIBUTE} attribute")
-        
-        model[settings.MODEL_ID_ATTRIBUTE] = model[settings.MONGO_ID_ATTRIBUTE]
-        del model[settings.MONGO_ID_ATTRIBUTE]
-
-        return cls(**model)
+        modelOut = cls(**model)
+        modelOut.id = model[id_attr]
+        return modelOut
 
 logger = get_logger()
 mongo_client_available = False
@@ -54,6 +52,11 @@ def create_in_collection(obj, cls):
     collection = get_collection_for_object(obj)
     document = obj.toMongoDict()
     document_id = document[settings.MONGO_ID_ATTRIBUTE]
+
+    if not document_id or len(document_id) == 0:
+        document_id = generate_nanoid()
+        document[settings.MONGO_ID_ATTRIBUTE] = document_id
+
     collection.insert_one(document)
     logger.info(f"document {document} for id {document_id} created in {collection.name}")
     model = cls.fromMongoDict(document)
@@ -75,6 +78,8 @@ def find_in_collection(obj_id: str, cls):
 
 
 def get_list_of_models_in_collection(cls, page: int, items_per_page: int):
+    collection_name = get_collection_name_for_class(cls)
+    logger.info(f"fetching from {collection_name} page {page} items {items_per_page}")
     result_set = _get_list_as_result_set(cls, page, items_per_page)
 
     documents = []
@@ -162,8 +167,34 @@ def get_mongo() -> MongoClient:
         logger.debug(f"fetching mongo client from cache")
         return mongo_client
 
-    mongo_client = get_client(settings.MONGO_URL)
+    logger.info(f"creating new mongo client")
+    mongo_uri = get_mongo_uri()
+    mongo_client = get_client(mongo_uri)
+
     if isinstance(mongo_client, MongoClient):
         mongo_client_available = True
 
     return mongo_client
+
+
+def get_mongo_uri() -> str:
+    mongo_user = getenv('MONGO_USERNAME')
+    mongo_pass = getenv('MONGO_PASSWORD')
+    mongo_host = getenv('MONGO_HOSTNAME')
+    mongo_port = getenv('MONGO_PORT')
+    mongo_db = getenv('MONGO_DB')
+
+    if not mongo_db or len(mongo_db) == 0:
+        logger.error(f"environment variable MONGO_DB undefined, existing...")
+        sys.exit(13)
+
+    if not mongo_host or len(mongo_host) == 0:
+        mongo_host = "localhost"
+
+    if not mongo_port or len(mongo_port) == 0:
+        mongo_port = "27017"
+
+    if mongo_user and len(mongo_user) > 0:
+        return f"mongodb://{mongo_user}:{mongo_pass}@{mongo_host}:{mongo_port}/{mongo_db}"
+    else:
+        return f"mongodb://{mongo_host}:{mongo_port}/{mongo_db}"

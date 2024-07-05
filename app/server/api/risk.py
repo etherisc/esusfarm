@@ -12,26 +12,20 @@ from util.logging import get_logger
 PATH_PREFIX = "/risk"
 TAGS = ["Risk"]
 
-MONGO = False
 
 # setup for module
 logger = get_logger()
 router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 
-if MONGO:
-    @router.post("/", response_model=RiskOut, response_description="Risk data created")
-    async def create_risk(risk: RiskIn) -> RiskOut:
-        verify_location_exists(risk.location_id)
-        return create_in_collection(risk, RiskOut)
+@router.post("/", response_model=RiskOut, response_description="Risk data created")
+async def create_risk(risk: RiskIn) -> RiskOut:
+    verify_location_exists(risk.location_id)
+    return create_in_collection(risk, RiskOut)
 
 
 @router.get("/{risk_id}", response_model=RiskOut, response_description="Risk data obtained")
 async def get_onchain_risk(risk_id: str) -> RiskOut:
-    if MONGO:
-        return find_in_collection(risk_id, RiskOut)
-    else:
-        risk = get_risk(risk_id)
-        return RiskOut.parse_obj(risk)
+    return find_in_collection(risk_id, RiskOut)
 
 
 @router.get("/all/json", response_model=list[RiskOut], response_description="Risks obtained")

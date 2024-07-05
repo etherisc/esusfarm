@@ -12,9 +12,12 @@ def get_client(db_uri:str) -> MongoClient:
     logger.info(f"connected with database {mongo.get_database().name}")
     return mongo
 
-
 def get_collection(mongo, collection_name, create=False):
     db = mongo.get_database()
+    logger.info(f"database {db} fetched")
+
+    collection = db.get_collection(collection_name)
+    logger.info(f"collection {collection} obtained")
 
     # check source collection exists
     if not collection_name in db.list_collection_names():
