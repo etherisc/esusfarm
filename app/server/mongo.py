@@ -189,7 +189,7 @@ def get_mongo_uri() -> str:
         sys.exit(13)
 
     if not mongo_host or len(mongo_host) == 0:
-        mongo_host = "localhost"
+        mongo_host = "host.docker.internal"
 
     if not mongo_port or len(mongo_port) == 0:
         mongo_port = "27017"

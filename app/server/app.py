@@ -7,6 +7,7 @@ from server.api.risk import router as router_risk
 from server.api.policy import router as router_policy
 from server.api.config import router as router_config
 from server.api.polygon import router as router_polygon
+from server.api.health import router as router_health
 from server.config import settings
 from server.error import NotFoundError
 from server.utils import create_app, include_router
@@ -21,7 +22,8 @@ include_router(app, router_policy, "add policy api")
 include_router(app, router_location, "add location api")
 include_router(app, router_risk, "add risk api")
 include_router(app, router_config, "add config api")
-include_router(app, router_polygon, "add polygon api")
+# include_router(app, router_polygon, "add polygon api")
+include_router(app, router_health, "add health api")
 
 # root redirection
 @app.get("/", include_in_schema=False)
