@@ -1,56 +1,81 @@
-from pydantic import BaseModel
-from pydantic import field_validator
-
+from pydantic import field_validator, Field
 from server.error import raise_with_log
-from server.mongo import MongoModel
+from server.model.location import LocationOut
+from server.model.config import ConfigOut
+from server.mongo import MongoModel, get_collection_for_class
 from util.nanoid import is_valid_nanoid
+
 
 EXAMPLE_IN = {
     "isValid": True,
-    "configId": "0xbec1f9e54b04a83d0769850c936d37a8",
-    "locationId": "0x9492fef57f9e671753f92b78a9958ada",
-    "crop": "Sorghum",
-    "indexReferenceValue": 71972625,
-    "indexSeasonValue": 55671585,
-    "indexIsFinal": False,
+    "configId": "7Zv4TZoBLxUi",
+    "locationId": "kDho7606IRdr",
+    "crop": "coffee",
+    "deductible": 0.0,
+    "draughtLoss": 0.27,
+    "excessRainfallLoss": 0.05,
+    "totalLoss": 0.27,
+    "payout": 0.27,
+    "finalPayout": 0.27,
     "createdAt": 1700316957,
     "updatedAt": 1700316957
 }
 
 EXAMPLE_OUT = EXAMPLE_IN
-EXAMPLE_OUT["id"] = "0x2e25dc055145b0eb1e5bef3879c675b6"
+EXAMPLE_OUT["_id"] = "jxmbyupsh1rv"
 
-VALID_CROPS = ["maize"]
+VALID_CROPS = ["coffee"]
 
-class RiskIn(BaseModel):
+class RiskIn(MongoModel):
     isValid: bool
     configId: str
     locationId: str
     crop: str
-    indexReferenceValue: int
-    indexSeasonValue: int
-    indexIsFinal: bool
+    deductible: float
+    draughtLoss: float = Field(default=0.0)
+    excessRainfallLoss: float = Field(default=0.0)
+    totalLoss: float = Field(default=0.0)
+    payout: float = Field(default=0.0)
+    finalPayout: float = Field(default=0.0)
     createdAt: int
     updatedAt: int
 
-    # @field_validator('risk_config_id', 'location_id')
-    # @classmethod
-    # def id_must_be_nanoid(cls, v: str) -> str:
-    #     nanoid = v.strip()
-    #     if not is_valid_nanoid(nanoid):
-    #         raise_with_log(ValueError, f"the id {nanoid} is not a valid nanoid")
+    @field_validator('configId', 'locationId')
+    @classmethod
+    def id_must_be_nanoid(cls, v: str) -> str:
+        nanoid = v.strip()
+        if not is_valid_nanoid(nanoid):
+            raise_with_log(ValueError, f"the id {nanoid} is not a valid nanoid")
         
-    #     return nanoid
+        return nanoid
 
-    # @field_validator('crop')
-    # @classmethod
-    # def crop_must_be_valid(cls, v: str) -> str:
-    #     crop = v.strip().lower()
+    @field_validator('locationId')
+    @classmethod
+    def location_must_exist(cls, v:str) -> str:
+        nanoid = v.strip()
+        collection = get_collection_for_class(LocationOut)
+        if collection.count_documents({"_id": nanoid}) == 0:
+            raise_with_log(ValueError, f"no location found for id {nanoid}")
+        return nanoid
 
-    #     if crop not in VALID_CROPS:
-    #         raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {VALID_CROPS}")
+    @field_validator('configId')
+    @classmethod
+    def config_must_exist(cls, v:str) -> str:
+        nanoid = v.strip()
+        collection = get_collection_for_class(ConfigOut)
+        if collection.count_documents({"_id": nanoid}) == 0:
+            raise_with_log(ValueError, f"no config found for id {nanoid}")
+        return nanoid
 
-    #     return crop
+    @field_validator('crop')
+    @classmethod
+    def crop_must_be_valid(cls, v: str) -> str:
+        crop = v.strip().lower()
+
+        if crop not in VALID_CROPS:
+            raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {VALID_CROPS}")
+
+        return crop
 
     class Config:
         json_schema_extra = {
@@ -58,7 +83,8 @@ class RiskIn(BaseModel):
         }
 
 class RiskOut(RiskIn):
-    id: str
+    _id: str
+    id: str = Field(default=None)
 
     class Config:
         json_schema_extra = {

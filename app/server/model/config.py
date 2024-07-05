@@ -15,7 +15,7 @@ EXAMPLE_IN = {
 }
 
 EXAMPLE_OUT = EXAMPLE_IN
-EXAMPLE_OUT["_id"] = "kDho7606IRdr"
+EXAMPLE_OUT["_id"] = "7Zv4TZoBLxUi"
 
 class ConfigIn(MongoModel):
     valid:bool

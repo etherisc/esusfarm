@@ -18,7 +18,7 @@ EXAMPLE_IN = {
 }
 
 EXAMPLE_OUT = EXAMPLE_IN
-EXAMPLE_OUT["_id"] = "jxmbyupsh1rv"
+EXAMPLE_OUT["_id"] = "kDho7606IRdr"
 
 class LocationIn(MongoModel):
     country: str

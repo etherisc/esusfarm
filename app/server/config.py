@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     APP_DEBUG: bool = False
 
     # model fields settings
-    # MODEL_ID_ATTRIBUTE: str = "id"
+    MODEL_ID_ATTRIBUTE: str = "id"
     MODEL_CSV_DELIMITER: str = ";"
     MODEL_CSV_LOCATION_FIELDS: str = "nanoId,onchainId,country,region,province,department,village,latitude,longitude,openstreetmap,coordinatesLevel"
     MODEL_CSV_POLICY_FIELDS: str = "id  ,year,seasonStart,seasonEnd,indexType,locationNanoId,region,province,department,city,beneficiarySex,subscriptionDate,premium,sumInsured,triggerSevere,payoutSevere,triggerMedium,payoutMedium,triggerLow,payoutLow,indexReferenceValue,indexEndOfSeasonValue,indexRatio,payoutEstimated"
