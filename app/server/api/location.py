@@ -3,11 +3,8 @@ from fastapi.routing import APIRouter
 
 from server.config import settings
 from server.model.location import LocationIn, LocationOut
-from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection, get_mongo_collection
-from util.mongo import get_collection
+from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
 
-from data.offchain_data import load_yelen_data, get_location, get_locations
-from data.onchain_data import get_location_id, to_hex
 from util.csv import write_csv_temp_file, get_field_list
 from util.logging import get_logger
 
