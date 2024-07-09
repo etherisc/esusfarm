@@ -156,18 +156,22 @@ example values taken from https://public.tableau.com/app/profile/parametric.solu
 ### Location API (Example)
 
 ```
-POST /api/v1/location
+POST /api/location
 ```
 
 Request Body 
 ```json
 {
-    "id": "345abc",
-    "region": "Northern",
-    "district": "AGAGO",
-    "subcounty": "Wol",
-    "latitude": 3.198,
-    "longitude": 33.111
+    "country": "UG",
+    "zone": "Central",
+    "district": "MASAKA",
+    "subcounty": "Kabonera",
+    "village": "Kiziba",
+    "latitude": -0.4365,
+    "longitude": 31.6780,
+    "openstreetmap": "https://www.openstreetmap.org/#map=14/-0.4365/31.6780",
+    "coordinatesLevel": "VILLAGE",
+    "onchainId": ""
 }
 ```
 
@@ -178,26 +182,25 @@ Data field comments:
 Validations:
 
 * id: not null, unique
-* region: element of fixed set of regions
-* district: element of fixed set of districts
-* subcounty: not null, unique
-* latitude: float value within country bounding box
-* longitude: float value within country bounding box
 
 ### Config API (Example)
 
 ```
-POST /api/v1/config
+POST /api/config
 ```
 
 Request Body 
 ```json
 {
-    "id": "234abc",
-    "region": "Northern",
-    "start_of_season": "2024-03-21",
-    "end_of_season": "2024-07-28",
-    "franchise": 0.1
+    "isValid": True,
+    "name": "MainSeasons2024",
+    "year": 2024,
+    "startOfSeason": "2024-08-01",
+    "endOfSeason": "2024-12-31",
+    "seasonDays": 120,
+    "franchise": 0.1,
+    "createdAt": 1700316957,
+    "updatedAt": 1700316957,
 }
 ```
 
@@ -211,22 +214,30 @@ Validations:
 * region: element of fixed set of regions
 * start of season: >= 2024, valid iso date
 * end of season: within meaningful range given start data
-* franchise: float, within meaningful range
 
 ### Risk API (Example)
 
 ```
-POST /api/v1/risk
+POST /api/risk
 ```
 
 Request Body 
 ```json
 {
-    "id": "123abc",
-    "config_id": "234abc",
-    "location_id": "345abc",
-    "crop": "Maize",
-    "deductible": 0.1
+    "isValid": True,
+    "configId": "7Zv4TZoBLxUi",
+    "locationId": "kDho7606IRdr",
+    "crop": "coffee",
+    "startOfSeason": "2024-08-01",
+    "endOfSeason": "2024-11-30",
+    "deductible": 0.0,
+    "draughtLoss": 0.27,
+    "excessRainfallLoss": 0.05,
+    "totalLoss": 0.27,
+    "payout": 0.27,
+    "finalPayout": 0.27,
+    "createdAt": 1700316957,
+    "updatedAt": 1700316957
 }
 ```
 
@@ -237,46 +248,29 @@ Data field comments:
 Validations:
 
 * id: not null, unique
-* config_id: existing config
-* location_id: existing location
+* configId: existing config
+* locationId: existing location
 * crop: element of fixed set of crops
-* deductible: float, within meaningful range
 
 Endpoint to provide end of season data
 
-```
-PUT /api/v1/risk/risk_id
-```
-
-Request Body 
-```json
-{
-    "drought_loss": 0.32,
-    "excess_rainfall_loss": 0.18,
-    "total_loss": 0.34,
-}
-```
-
-Validations:
-
-* risk id: existing risk id
-* drought loss: float, within meaningufl range
-* excess rainfall loss: float, within meaningufl range
-* total loss: to be defined (can this be derived from the above values?)
 
 ### Person API (Example)
 
 ```
-POST /api/v1/person
+POST /api/person
 ```
 
 Request Body 
 ```json
 {
-    "id": "333abc",
-    "first_name": "Yentabpoa",
-    "last_name": "Bokoum",
-    "gender": "F",
+    "locationId": "U6ufadiIe0Xz",
+    "externalId": "PRS1234",
+    "lastName": "Auma",
+    "firstName": "Florence",
+    "gender": "f",
+    "mobilePhone": "+25656234567",
+    "wallet":  "0x03507c8a16513F1615bD4a00BDD4570514a6ef21"
 }
 ```
 
@@ -298,18 +292,18 @@ Things to define/questios
 * Link between sum insured and premium. To be calculated in smart contract (eg via ratio in risk)?
 
 ```
-POST /api/v1/policy
+POST /api/policy
 ```
 
 Request Body 
 ```json
 {
-    "id": "765abc",
-    "person_id": "333abc",
-    "risk_id": "123abc",
-    "subscription": "2024-02-15",
-    "sum_insured": 200000,
-    "premium": 20000,
+    "personId": "fXJ6Gwfgnw-C",
+    "riskId": "t4FcP75uGHHc",
+    "externalId": "ABC123",
+    "subscriptionDate": "2024-06-14",
+    "sumInsuredAmount": 1000000.0,
+    "premiumAmount": 200000.0,
 }
 ```
 
