@@ -3,7 +3,7 @@ from server.error import raise_with_log
 from server.mongo import MongoModel
 
 EXAMPLE_IN = {
-    "valid": True,
+    "isValid": True,
     "name": "MainSeasons2024",
     "year": 2024,
     "startOfSeason": "2024-08-01",
@@ -18,7 +18,7 @@ EXAMPLE_OUT = EXAMPLE_IN
 EXAMPLE_OUT["_id"] = "7Zv4TZoBLxUi"
 
 class ConfigIn(MongoModel):
-    valid:bool
+    isValid:bool
     name:str
     year:int
     startOfSeason:str

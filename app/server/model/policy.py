@@ -1,37 +1,38 @@
-from pydantic import field_validator
+from pydantic import field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
 from util.date import Date
 from util.nanoid import is_valid_nanoid
 
 EXAMPLE_IN = {
-    "person_id": "fXJ6Gwfgnw-C",
-    "risk_id": "t4FcP75uGHHc",
-    "external_id": "QF123456",
-    "subscription_date": "2023-06-14",
-    "sum_insured_amount": 20000.0,
-    "premium_amount": 1500.0,
+    "personId": "fXJ6Gwfgnw-C",
+    "riskId": "t4FcP75uGHHc",
+    "externalId": "ABC123",
+    "subscriptionDate": "2024-06-14",
+    "sumInsuredAmount": 1000000.0,
+    "premiumAmount": 200000.0,
 }
 
 EXAMPLE_OUT = EXAMPLE_IN
 EXAMPLE_OUT["id"] = "cwNCXQfypiTg"
-EXAMPLE_OUT["process_id"] = "FC643008A2EC718EBB1C5001B426A2AC65035B1AA910B1BA0769541F391967A8"
+EXAMPLE_OUT["onchainId"] = "2689313703"
 
-# https://www.xe.com/currencyconverter/convert/?Amount=500&From=USD&To=XOF
-MAX_MONETARY_AMOUNT = 500000.0
+# https://www.xe.com/currencyconverter/convert/?Amount=300&From=USD&To=UGX
+MAX_MONETARY_AMOUNT = 5000000.0
 
-MIN_DATE = Date.create_from("2023-01-01")
+MIN_DATE = Date.create_from("2024-01-01")
 MAX_DATE = Date.create_from("2024-12-31")
 
 class PolicyIn(MongoModel):
-    person_id: str
-    risk_id: str
-    external_id: str
-    subscription_date: str
-    sum_insured_amount: float
-    premium_amount: float
+    personId: str
+    riskId: str
+    externalId: str
+    subscriptionDate: str
+    sumInsuredAmount: float
+    premiumAmount: float
+    onchainId: str = Field(default=None)
 
-    @field_validator('person_id', 'risk_id')
+    @field_validator('personId', 'riskId')
     @classmethod
     def id_must_be_nanoid(cls, v: str) -> str:
         nanoid = v.strip()
@@ -40,7 +41,7 @@ class PolicyIn(MongoModel):
         
         return nanoid
 
-    @field_validator('subscription_date')
+    @field_validator('subscriptionDate')
     @classmethod
     def date_must_be_meaningful(cls, v: str) -> str:
         date = Date.create_from(v)
@@ -52,7 +53,7 @@ class PolicyIn(MongoModel):
 
         return date_str
 
-    @field_validator('sum_insured_amount', 'premium_amount')
+    @field_validator('sumInsuredAmount', 'premiumAmount')
     @classmethod
     def monetary_amount_must_be_meaningful(cls, amount: float) -> str:
         if amount <= 0.0:
@@ -68,8 +69,8 @@ class PolicyIn(MongoModel):
         }
 
 class PolicyOut(PolicyIn):
-    id: str
-    process_id: str
+    _id: str
+    id: str = Field(default=None)
 
     class Config:
         json_schema_extra = {

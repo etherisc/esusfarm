@@ -11,6 +11,8 @@ EXAMPLE_IN = {
     "configId": "7Zv4TZoBLxUi",
     "locationId": "kDho7606IRdr",
     "crop": "coffee",
+    "startOfSeason": "2024-08-01",
+    "endOfSeason": "2024-11-30",
     "deductible": 0.0,
     "draughtLoss": 0.27,
     "excessRainfallLoss": 0.05,

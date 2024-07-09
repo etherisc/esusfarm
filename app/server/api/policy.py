@@ -4,7 +4,7 @@ from fastapi.routing import APIRouter
 from server.config import settings
 from server.api.util import verify_person_exists, verify_risk_exists
 from server.model.policy import PolicyIn, PolicyOut
-from server.mongo import create_in_collection, find_in_collection, get_collection_for_class
+from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
 
 from data.offchain_data import get_policy_data, get_policies_data
 from data.onchain_data import get_onchain_onboarding_data, amend_onchain_data
@@ -20,36 +20,34 @@ router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 
 @router.post("/", response_model=PolicyOut, response_description="Policy data created")
 async def create_policy(policy: PolicyIn) -> PolicyOut:
-    verify_person_exists(policy.person_id)
-    verify_risk_exists(policy.risk_id)
+    verify_person_exists(policy.personId)
+    verify_risk_exists(policy.riskId)
     return create_in_collection(policy, PolicyOut)
+
 
 @router.get("/{policy_id}", response_description="Policy data obtained")
 async def get_policy(policy_id: str):
     return find_in_collection(policy_id, PolicyOut)
 
-@router.get("/{policy_id}/onchain", response_description="Policy onchain data obtained")
-async def get_onchain_policy_data(policy_id: str) -> dict:
-    return get_onchain_onboarding_data(policy_id)
+
+# @router.get("/{policy_id}/onchain", response_description="Policy onchain data obtained")
+# async def get_onchain_policy_data(policy_id: str) -> dict:
+#     return get_onchain_onboarding_data(policy_id)
 
 
 @router.get("/all/json", response_description="Policies data obtained")
 async def get_all_policies(page:int = 1, items:int = settings.MONGO_DOCUMENTS_PER_PAGE):
-    return get_policies_data(page, items)
+    logger.info(f"GET {PATH_PREFIX}/all/json")
+    return get_list_of_models_in_collection(PolicyOut, page, items)
 
 
-@router.get("/all/csv", response_class=FileResponse, response_description="Policies csv created")
-async def get_all_policies_csv(
-    fields: str = settings.MODEL_CSV_POLICY_FIELDS, 
+@router.get("/all/csv", response_class=FileResponse, response_description="Locations csv created")
+async def get_all_locations_csv(
+    fields: str = settings.MODEL_CSV_LOCATION_FIELDS, 
     delimiter: str = settings.MODEL_CSV_DELIMITER,
     page: int = 1, 
     items: int = settings.MONGO_DOCUMENTS_PER_PAGE
-) -> dict:
-    policies = get_policies_data(page, items)
+):
+    documents = get_list_of_dicts_in_collection(PolicyOut, page, items)
     field_list = get_field_list(fields)
-    csv_file_path = write_csv_temp_file(field_list, policies, delimiter)
-
-    response = FileResponse(csv_file_path, media_type="text/csv")
-    response.headers["Content-Disposition"] = "attachment; filename=policies.csv"
-
-    return response
+    return write_csv_temp_file(field_list, documents, delimiter)

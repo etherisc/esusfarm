@@ -21,9 +21,9 @@ async def create_location(location: LocationIn):
     return create_in_collection(location, LocationOut)
 
 
-@router.get("/{location_nano_id}", response_description="Location data obtained")
-async def get_single_location(location_nano_id: str):
-    return find_in_collection(location_nano_id, LocationOut)
+@router.get("/{location_id}", response_description="Location data obtained")
+async def get_single_location(location_id: str):
+    return find_in_collection(location_id, LocationOut)
 
 
 @router.get("/all/json", response_model=list[LocationOut], response_description="Locations obtained")

@@ -18,10 +18,10 @@ app = create_app(settings)
 
 # link to api routers
 include_router(app, router_policy, "add policy api")
-# include_router(app, router_person, "add person api")
-include_router(app, router_location, "add location api")
 include_router(app, router_risk, "add risk api")
 include_router(app, router_config, "add config api")
+include_router(app, router_person, "add person api")
+include_router(app, router_location, "add location api")
 # include_router(app, router_polygon, "add polygon api")
 include_router(app, router_health, "add health api")
 

@@ -1,16 +1,16 @@
-from pydantic import field_validator
+from pydantic import field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
 from util.nanoid import is_valid_nanoid
 from util.wallet import generate_wallet, is_valid_wallet_address
 
 EXAMPLE_IN = {
-    "location_id": "U6ufadiIe0Xz",
-    "external_id": "PRS1234",
-    "last_name": "Kienou",
-    "first_name": "Hawa",
-    "sex": "f",
-    "mobile_phone": "+22660123456",
+    "locationId": "U6ufadiIe0Xz",
+    "externalId": "PRS1234",
+    "lastName": "Auma",
+    "firstName": "Florence",
+    "gender": "f",
+    "mobilePhone": "+25656234567",
     "wallet":  "0x03507c8a16513F1615bD4a00BDD4570514a6ef21"
 }
 
@@ -18,15 +18,15 @@ EXAMPLE_OUT = EXAMPLE_IN
 EXAMPLE_OUT["id"] = "fXJ6Gwfgnw-C"
 
 class PersonIn(MongoModel):
-    location_id: str
-    external_id: str
-    last_name: str
-    first_name: str
-    sex: str
-    mobile_phone: str
-    wallet: str
+    lastName: str
+    firstName: str
+    gender: str
+    mobilePhone: str
+    locationId: str
+    wallet: str = Field(default=None)
+    externalId: str = Field(default=None)
 
-    @field_validator('location_id')
+    @field_validator('locationId')
     @classmethod
     def id_must_be_nanoid(cls, v: str) -> str:
         nanoid = v.strip()
@@ -35,7 +35,7 @@ class PersonIn(MongoModel):
         
         return nanoid
 
-    @field_validator('first_name', 'last_name')
+    @field_validator('firstName', 'lastName')
     @classmethod
     def name_must_not_be_empty(cls, v: str) -> str:
         name = v.strip()
@@ -44,7 +44,7 @@ class PersonIn(MongoModel):
 
         return name
 
-    @field_validator('sex')
+    @field_validator('gender')
     @classmethod
     def sex_must_be_m_or_f(cls, v: str) -> str:
         if v is None:
@@ -76,7 +76,8 @@ class PersonIn(MongoModel):
         }
 
 class PersonOut(PersonIn):
-    id: str
+    _id: str
+    id: str = Field(default=None)
 
     class Config:
         json_schema_extra = {
