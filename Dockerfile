@@ -1,9 +1,9 @@
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 EXPOSE 8000
 
 # install dependencies
-COPY requirements.txt .
+COPY app/requirements.txt .
 RUN pip install -r requirements.txt
 
 
