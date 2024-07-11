@@ -178,6 +178,10 @@ def get_mongo() -> MongoClient:
 
 
 def get_mongo_uri() -> str:
+    mongo_url = getenv('MONGO_URL')
+    if mongo_url and len(mongo_url) > 0:
+        return mongo_url
+    
     mongo_user = getenv('MONGO_USERNAME')
     mongo_pass = getenv('MONGO_PASSWORD')
     mongo_host = getenv('MONGO_HOSTNAME')
