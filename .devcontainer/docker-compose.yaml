@@ -12,6 +12,8 @@ services:
       args:
         VARIANT: 3.9-bookworm
         PLATFORM: linux/amd64
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/mongo
     volumes:
       - ..:/workspaces/esusfarm:cached
       #- $HOME/.ssh/:/home/vscode/.ssh/ # Mount the ssh folder to authenticate with github
