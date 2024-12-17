@@ -433,6 +433,17 @@ data = load()
 data['Reporting PAM'][2]
 ```
 
+## Python Setup
+
+[UV](https://astral.sh/blog/uv) is used for Python project and package management.
+
+### Initial Setup
+
+```bash
+uv init --app --name esusfarm
+uv add uvicorn fastapi pydantic_settings pymongo web3 openpyxl loguru iso3166 nanoid jwt
+```
+
 ## Running the API Server Locally
 
 ```bash

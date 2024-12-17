@@ -1,7 +1,10 @@
-ARG VARIANT=3.9-bookworm
-# requires rosetta 2 on apple chips
-ARG PLATFORM=linux/amd64
-FROM --platform=${PLATFORM} mcr.microsoft.com/devcontainers/python:${VARIANT}
+ARG DEBIAN_VERSION=bookworm
+ARG UV_VERSION=0.5.9
+ARG PYTHON_VERSION=3.13
+
+FROM ghcr.io/astral-sh/uv:$UV_VERSION AS uv
+
+FROM mcr.microsoft.com/vscode/devcontainers/base:$DEBIAN_VERSION
 
 # install mcfly as root
 RUN curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly 
@@ -15,6 +18,10 @@ RUN echo "eval \"\$(starship init bash)\"" >> ~/.bashrc && echo "eval \"\$(stars
 # install mcfly config
 RUN echo 'eval "$(mcfly init zsh)"' >> ~/.zshrc \
     && touch ~/.zsh_history
+
+# Install UV/Python
+COPY --from=uv --chown=vscode: /uv /uvx /bin/
+RUN uv python install $PYTHON_VERSION
 
 # Install foundry
 RUN curl -L https://foundry.paradigm.xyz | bash

@@ -15,7 +15,7 @@
 	"forwardPorts": [8000, "mongo:27017"],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip install --upgrade pip && pip install -r app/requirements.txt",
+	// "postCreateCommand": "pip install --upgrade pip && pip install pipenv && pipenv sync",
 	"customizations": {
 		"vscode": {
 			"extensions": [
