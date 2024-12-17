@@ -437,23 +437,27 @@ data['Reporting PAM'][2]
 
 [UV](https://astral.sh/blog/uv) is used for Python project and package management.
 
-### Initial Setup
+## Running the API Server Locally
+
+```bash
+uv run python3 app/main.py
+```
+
+Open the browser at `http://localhost:8000`. 
+The actual port is shown in the ports tab of VSCode.
+
+
+### Initial Project Setup
+
+The information below is just for documentation purposes.
+Do not actually run these commands again.
+
+The following commands were used to create the initial UV based Python project.
 
 ```bash
 uv init --app --name esusfarm
 uv add uvicorn fastapi pydantic_settings pymongo web3 openpyxl loguru iso3166 nanoid jwt
 ```
-
-## Running the API Server Locally
-
-```bash
-cd app
-# pip install -r requirements.txt
-python3 main.py
-```
-
-Open the browser at `http://localhost:8000`. 
-The actual port is shown in the ports tab of VSCode.
 
 ## Initial Dokku Setup
 
