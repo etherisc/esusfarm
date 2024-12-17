@@ -2,15 +2,17 @@ version: "3.8"
 
 services:
   mongodb:
-    image: mongo:latest
-    container_name: mongodb_esusfarm
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: root
-    #   MONGO_INITDB_ROOT_PASSWORD: s3cret
+    image: mongo:7
+    # ports:
+    #   - "27017:27017"
+    # volumes:
+    # - mongodb_data:/data/db
+  api:
+    image: esusfarm-api
     ports:
-      - "27017:27017"
-    volumes:
-    - mongodb_data:/data/db
+      - "8002:8000"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/mongo
 
 volumes:
   mongodb_data:
