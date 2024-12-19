@@ -1,6 +1,6 @@
 from pydantic import field_validator, Field
-from app.server.model.claim import ClaimOut
-from app.server.model.policy import PolicyOut
+from server.model.claim import ClaimOut
+from server.model.policy import PolicyOut
 from server.error import raise_with_log
 from server.mongo import MongoModel, get_collection_for_class
 from util.nanoid import is_valid_nanoid
