@@ -2,7 +2,7 @@ from fastapi.responses import FileResponse
 from fastapi.routing import APIRouter
 
 from server.config import settings
-from server.model.risk import RiskIn, RiskOut
+from server.model.risk import RiskIn, RiskOut, from_risk_in
 from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
 
 from data.onchain_data import get_risk, get_risks
@@ -18,8 +18,8 @@ logger = get_logger()
 router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 
 @router.post("/", response_model=RiskOut, response_description="Risk data created")
-async def create_risk(risk: RiskIn) -> RiskOut:
-    return create_in_collection(risk, RiskOut)
+async def create_risk(riskIn: RiskIn) -> RiskOut:
+    return create_in_collection(from_risk_in(riskIn), RiskOut)
 
 
 @router.get("/{risk_id}", response_model=RiskOut, response_description="Risk data obtained")

@@ -137,7 +137,8 @@ def get_collection_name_for_class(cls) -> str:
     elif class_name.endswith("Out"):
         return class_name[:-3]
     else:
-        raise_with_log(ValueError, f"object class name '{class_name}' not ending with 'In' or 'Out'")
+        # raise_with_log(ValueError, f"object class name '{class_name}' not ending with 'In' or 'Out'")
+        return class_name
 
 
 def get_mongo_collection(collection_name: str): 
