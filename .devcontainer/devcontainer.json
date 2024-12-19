@@ -19,9 +19,9 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				// "github.vscode-pull-request-github",
-				// "github.copilot",
-				// "github.copilot-chat",
+				"ms-python.python",
+				"github.vscode-pull-request-github",
+				"github.copilot",
 				"mhutchie.git-graph",
 				"eamodio.gitlens",
 				"gruntfuggly.todo-tree",

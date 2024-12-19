@@ -22,7 +22,7 @@ class MongoModel(BaseModel):
     def toMongoDict(this) -> dict:
         model = this.dict()
         model_id = None
-
+        
         if not settings.MONGO_ID_ATTRIBUTE in model:
             model[settings.MONGO_ID_ATTRIBUTE] = generate_nanoid()
         
@@ -75,6 +75,20 @@ def find_in_collection(obj_id: str, cls):
         raise_with_log(NotFoundError, f"no document found for id {obj_id} in collection {collection.name}")
 
     return cls.fromMongoDict(document)
+
+def update_in_collection(obj, cls):
+    collection = get_collection_for_object(obj)
+    document = obj.toMongoDict()
+    document['_id'] = obj.id
+    document_id = document[settings.MONGO_ID_ATTRIBUTE]
+
+    if not document_id or len(document_id) == 0:
+        raise_with_log(ValueError, f"document id not set for update")
+
+    collection.replace_one({settings.MONGO_ID_ATTRIBUTE: document_id}, document)
+    logger.info(f"document {document} for id {document_id} updated in {collection.name}")
+    model = cls.fromMongoDict(document)
+    return model
 
 
 def get_list_of_models_in_collection(cls, page: int, items_per_page: int):
@@ -137,7 +151,8 @@ def get_collection_name_for_class(cls) -> str:
     elif class_name.endswith("Out"):
         return class_name[:-3]
     else:
-        raise_with_log(ValueError, f"object class name '{class_name}' not ending with 'In' or 'Out'")
+        # raise_with_log(ValueError, f"object class name '{class_name}' not ending with 'In' or 'Out'")
+        return class_name
 
 
 def get_mongo_collection(collection_name: str): 
