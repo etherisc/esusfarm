@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     MODEL_CSV_DELIMITER: str = ";"
     MODEL_CSV_LOCATION_FIELDS: str = "id,country,region,province,department,village,latitude,longitude,openstreetmap,coordinatesLevel"
     MODEL_CSV_POLICY_FIELDS: str = "id,year,seasonStart,seasonEnd,indexType,locationNanoId,region,province,department,city,beneficiarySex,subscriptionDate,premium,sumInsured,triggerSevere,payoutSevere,triggerMedium,payoutMedium,triggerLow,payoutLow,indexReferenceValue,indexEndOfSeasonValue,indexRatio,payoutEstimated"
+    MODEL_CSV_CLAIM_FIELDS: str = "id,onChainId,policyId,claimAmount,paidAmount,closedAt,createdAt,updatedAt"
+    MODEL_CSV_PAYOUT_FIELDS: str = "id,onChainId,policyId,claimId,amount,paidAt,beneficiary,createdAt,updatedAt"
     MODEL_CSV_RISK_FIELDS: str = "id,isValid,configId,locationId,crop,createdAt,updatedAt"
     MODEL_CSV_CONFIG_FIELDS: str = "id,isValid,name,year,startOfSeason,endOfSeason,createdAt,updatedAt"
 
