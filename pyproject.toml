@@ -3,7 +3,7 @@ name = "esusfarm"
 version = "0.1.0"
 description = "Etherisc Platform API"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.6",
     "iso3166>=2.1.1",
