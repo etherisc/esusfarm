@@ -17,6 +17,16 @@ EXAMPLE_IN = {
     "deductible": 0.0,
 }
 
+EXAMPLE_UPDATE_IN = {
+    "id": "jxmbyupsh1rv",
+    "draughtLoss": 0.27,
+    "excessRainfallLoss": 0.05,
+    "totalLoss": 0.27,
+    "payout": 0.27,
+    "finalPayout": 0.27
+}
+
+
 EXAMPLE_OUT = {
     "id": "jxmbyupsh1rv",
     "isValid": True,
@@ -89,6 +99,29 @@ class RiskIn(BaseModel):
     class Config:
         json_schema_extra = {
             "example": EXAMPLE_IN
+        }
+
+class RiskUpdateIn(BaseModel):
+    id: str
+    draughtLoss: float = Field(default=0.0)
+    excessRainfallLoss: float = Field(default=0.0)
+    totalLoss: float = Field(default=0.0)
+    payout: float = Field(default=0.0)
+    finalPayout: float = Field(default=0.0)
+
+
+    @field_validator('id')
+    @classmethod
+    def risk_must_exist(cls, v:str) -> str:
+        nanoid = v.strip()
+        collection = get_collection_for_class(Risk)
+        if collection.count_documents({"_id": nanoid}) == 0:
+            raise_with_log(ValueError, f"no risk found for id {nanoid}")
+        return nanoid
+    
+    class Config:
+        json_schema_extra = {
+            "example": EXAMPLE_UPDATE_IN
         }
 
 
@@ -175,3 +208,12 @@ def from_risk_in(riskIn) -> Risk:
         createdAt=int(time.time()),
         updatedAt=int(time.time())
     )
+
+def update_risk(risk, riskUpdateIn) -> Risk:
+    risk.draughtLoss = riskUpdateIn.draughtLoss
+    risk.excessRainfallLoss = riskUpdateIn.excessRainfallLoss
+    risk.totalLoss = riskUpdateIn.totalLoss
+    risk.payout = riskUpdateIn.payout
+    risk.finalPayout = riskUpdateIn.finalPayout
+    risk.updatedAt = int(time.time())
+    return risk

@@ -2,8 +2,8 @@ from fastapi.responses import FileResponse
 from fastapi.routing import APIRouter
 
 from server.config import settings
-from server.model.risk import RiskIn, RiskOut, from_risk_in
-from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
+from server.model.risk import RiskIn, RiskUpdateIn, RiskOut, Risk, from_risk_in, update_risk
+from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection, update_in_collection
 
 from data.onchain_data import get_risk, get_risks
 from util.csv import write_csv_temp_file, get_field_list
@@ -21,6 +21,11 @@ router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 async def create_risk(riskIn: RiskIn) -> RiskOut:
     return create_in_collection(from_risk_in(riskIn), RiskOut)
 
+@router.put("/{risk_id}", response_model=RiskOut, response_description="Risk data updated")
+async def update_risk_data(riskUpdateIn: RiskUpdateIn) -> RiskOut:
+    risk = find_in_collection(riskUpdateIn.id, RiskOut)
+    risk = update_risk(risk, riskUpdateIn)
+    return update_in_collection(risk, RiskOut)
 
 @router.get("/{risk_id}", response_model=RiskOut, response_description="Risk data obtained")
 async def get_single_risk(risk_id: str) -> RiskOut:
