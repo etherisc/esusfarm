@@ -48,6 +48,11 @@ mongo_client = None
 mongo_collections = {}
 
 
+def count_documents(cls) -> int:
+    collection = get_collection_for_class(cls)
+    return collection.count_documents({})
+
+
 def create_in_collection(obj, cls):
     collection = get_collection_for_object(obj)
     document = obj.toMongoDict()
@@ -75,6 +80,7 @@ def find_in_collection(obj_id: str, cls):
         raise_with_log(NotFoundError, f"no document found for id {obj_id} in collection {collection.name}")
 
     return cls.fromMongoDict(document)
+
 
 def update_in_collection(obj, cls):
     collection = get_collection_for_object(obj)

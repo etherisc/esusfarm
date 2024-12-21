@@ -46,6 +46,7 @@ class Claim(MongoModel):
 
 class ClaimOut(Claim):
     id: str = Field(default=None)
+    tx: str | None = Field(default=None)
 
     class Config:
         json_schema_extra = {

@@ -52,6 +52,7 @@ class LocationIn(MongoModel):
 class LocationOut(LocationIn):
     _id: str
     id: str = Field(default=None)
+    tx: str | None = Field(default=None)
 
     class Config:
         json_schema_extra = {

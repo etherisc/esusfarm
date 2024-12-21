@@ -36,6 +36,7 @@ class ConfigIn(MongoModel):
 class ConfigOut(ConfigIn):
     _id: str
     id: str = Field(default=None)
+    tx: str | None = Field(default=None)
 
     class Config:
         json_schema_extra = {
