@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Location, RiskId, Str, Timestamp} from "./Types.sol";
 
-contract Product {
+contract CropProduct {
     
     uint256 public riskCounter;
 

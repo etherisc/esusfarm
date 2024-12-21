@@ -4,6 +4,6 @@ out = "out"
 libs = ["lib"]
 
 gas_reports = [
-    "Counter", 
-    "Token"
+    "AccountingToken", 
+    "CropProduct"
 ]

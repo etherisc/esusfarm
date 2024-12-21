@@ -17,6 +17,7 @@ EXAMPLE_OUT = EXAMPLE_IN
 EXAMPLE_OUT["id"] = "fXJ6Gwfgnw-C"
 EXAMPLE_OUT["walletIndex"] = 2345,
 EXAMPLE_OUT["wallet"] = "0x03507c8a16513F1615bD4a00BDD4570514a6ef21"
+EXAMPLE_OUT["tx"] = "0x10cc6457d494d0fee7aeb89c63bcdd98f90aad18bb761591d8da1314551ca3ca"
 
 class PersonIn(MongoModel):
     lastName: str

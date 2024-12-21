@@ -4,11 +4,11 @@ from typing import Any, Dict
 from web3 import Web3
 from web3.contract import Contract as Web3Contract
 from web3.types import FilterParams
-from web3_utils.wallet import Wallet
+from web3utils.wallet import Wallet
 
 class Contract:
 
-    FOUNDRY_OUT = "./out"
+    FOUNDRY_OUT = "../out"
     SOLIDITY_EXT = "sol"
     GAS = 1000000
 
@@ -45,16 +45,17 @@ class Contract:
                 mutability = func.get('stateMutability')
 
                 if mutability in ['nonpayable', 'payable']:
-                    print(f"creating {func_name}(...) tx")
+                    # print(f"creating {func_name}(...) tx")
                     setattr(self, func_name, self._create_write_method(func_name))
                 elif mutability in ['view', 'pure']:
-                    print(f"creating {func_name}(...) call")
+                    # print(f"creating {func_name}(...) call")
                     setattr(self, func_name, self._create_read_method(func_name))
 
     def _create_read_method(self, func_name: str):
         def read_method(*args, **kwargs) -> Any:
             try:
-                return getattr(self.contract.functions, func_name)(*args, **kwargs).call()
+                modified_args = [arg.address if isinstance(arg, Wallet) else arg for arg in args]
+                return getattr(self.contract.functions, func_name)(*modified_args, **kwargs).call()
             except Exception as e:
                 print(f"Error calling function '{func_name}': {e}")
                 return None
@@ -84,7 +85,7 @@ class Contract:
     def _create_write_method(self, func_name: str):
         def write_method(*args) -> str:
             tx_params = self._get_tx_params(args)
-            function_params = args[:-1]
+            function_args = args[:-1]
 
             try:
                 wallet = tx_params['from']
@@ -95,8 +96,11 @@ class Contract:
                 gas_price = tx_params.get('gasPrice', self.w3.eth.gas_price)
                 nonce = self.w3.eth.get_transaction_count(wallet.address)
 
+                # transform wallet args to addresses (str)
+                modified_args = [arg.address if isinstance(arg, Wallet) else arg for arg in function_args]
+
                 # create tx
-                txn = getattr(self.contract.functions, func_name)(*function_params).build_transaction({
+                txn = getattr(self.contract.functions, func_name)(*modified_args).build_transaction({
                     'chainId': chain_id,
                     'gas': gas,
                     'gasPrice': gas_price,
