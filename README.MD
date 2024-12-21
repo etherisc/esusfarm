@@ -364,6 +364,7 @@ forge script script/MockSetup.s.sol --fork-url http://127.0.0.1:8545 --broadcast
 ```shell
 cd app
 eval $(echo export $(grep MNEMONIC .env))
+eval $(echo export $(grep CONTRACT_ADDRESS .env))
 uv run python3
 ```
 
@@ -384,9 +385,9 @@ a = Wallet.create()
 w3_uri = "http://127.0.0.1:8545"
 w3 = Web3(Web3.HTTPProvider(w3_uri))
 
-# replace the address with your own token contract address
-token_address = "0x7A2E477883Bd134637a2eD18f84babD71B9bb4e1"
-token = Contract(w3, "AccountingToken", token_address)
+# replace contract addresses with your own 
+product = Contract(w3, "CropProduct", "0xdA0b2cf6B65a98d06Cd77212509537dD166A19cE")
+token = Contract(w3, "AccountingToken", "0xB58192974A93B9143Ef5F91Ab8b0545092b65803")
 
 token.transfer(a, 100, {'from':w})
 token.balanceOf(a)

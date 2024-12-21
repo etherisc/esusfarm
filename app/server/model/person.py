@@ -2,7 +2,7 @@ from pydantic import field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
 from util.nanoid import is_valid_nanoid
-from web3_utils.wallet import Wallet
+from web3utils.wallet import Wallet
 
 EXAMPLE_IN = {
     "locationId": "U6ufadiIe0Xz",
@@ -47,7 +47,7 @@ class PersonIn(MongoModel):
 
     @field_validator('gender')
     @classmethod
-    def sex_must_be_m_or_f(cls, v: str) -> str:
+    def gender_must_be_m_or_f(cls, v: str) -> str:
         if v is None:
             return None
 
@@ -72,7 +72,6 @@ class PersonOut(PersonIn):
     @field_validator('walletIndex')
     @classmethod
     def wallet_index_must_be_positive(cls, v: int) -> int:
-        print(f"validating wallet index {v} ...")
         wallet_index = v
         if not isinstance(wallet_index, int):
             raise_with_log(ValueError, f"wallet index must be of type int")

@@ -109,6 +109,20 @@ def get_list_of_models_in_collection(cls, page: int, items_per_page: int):
     return documents
 
 
+def get_filtered_list_of_models_in_collection(cls, filter):
+    collection_name = get_collection_name_for_class(cls)
+    logger.info(f"fetching from {collection_name} with filter {filter}")
+
+    collection = get_collection_for_class(cls)
+    result_set = collection.find(filter)
+    documents = []
+
+    for document in result_set:
+        documents.append(cls.fromMongoDict(document))
+    
+    return documents
+
+
 def get_list_of_dicts_in_collection(cls, page: int, items_per_page: int):
     result_set = _get_list_as_result_set(cls, page, items_per_page)
 

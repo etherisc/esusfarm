@@ -1,4 +1,6 @@
 from pydantic import field_validator, Field, BaseModel
+
+from server.config import settings
 from server.error import raise_with_log
 from server.model.location import LocationOut
 from server.model.config import ConfigOut
@@ -46,9 +48,6 @@ EXAMPLE_OUT = {
     "updatedAt": 1700316957
 }
 
-
-VALID_CROPS = ["coffee"]
-
 class RiskIn(BaseModel):
     isValid: bool
     configId: str
@@ -91,7 +90,7 @@ class RiskIn(BaseModel):
     def crop_must_be_valid(cls, v: str) -> str:
         crop = v.strip().lower()
 
-        if crop not in VALID_CROPS:
+        if crop not in settings.VALID_CROPS:
             raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {VALID_CROPS}")
 
         return crop
@@ -175,7 +174,7 @@ class Risk(MongoModel):
     def crop_must_be_valid(cls, v: str) -> str:
         crop = v.strip().lower()
 
-        if crop not in VALID_CROPS:
+        if crop not in settings.VALID_CROPS:
             raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {VALID_CROPS}")
 
         return crop

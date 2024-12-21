@@ -15,7 +15,7 @@ EXAMPLE_IN = {
 
 EXAMPLE_OUT = EXAMPLE_IN
 EXAMPLE_OUT["id"] = "cwNCXQfypiTg"
-EXAMPLE_OUT["onchainId"] = "2689313703"
+EXAMPLE_OUT["nft"] = "2689313703"
 
 # https://www.xe.com/currencyconverter/convert/?Amount=300&From=USD&To=UGX
 MAX_MONETARY_AMOUNT = 5000000.0
@@ -30,7 +30,6 @@ class PolicyIn(MongoModel):
     subscriptionDate: str
     sumInsuredAmount: float
     premiumAmount: float
-    onchainId: str = Field(default=None)
 
     @field_validator('personId', 'riskId')
     @classmethod
@@ -71,6 +70,7 @@ class PolicyIn(MongoModel):
 class PolicyOut(PolicyIn):
     _id: str
     id: str = Field(default=None)
+    nft: int | None = Field(default=None)
     tx: str | None = Field(default=None)
 
     class Config:

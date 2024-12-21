@@ -6,7 +6,7 @@ from server.model.person import PersonIn, PersonOut
 from server.mongo import count_documents, create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
 from util.csv import write_csv_temp_file, get_field_list
 from util.logging import get_logger
-from web3_utils.wallet import Wallet
+from web3utils.wallet import Wallet
 
 
 PATH_PREFIX = "/person"

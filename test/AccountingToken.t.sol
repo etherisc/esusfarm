@@ -17,11 +17,11 @@ contract AccountingTokenTest is Test {
         vm.stopPrank();
     }
 
-    function test_tokenMetadata() public {
+    function test_tokenMetadata() public view {
         assertEq(token.symbol(), "LCA", "unexpected token symbol");
     }
 
-    function test_tokenInitialBalance() public {
+    function test_tokenInitialBalance() public view {
         assertEq(token.balanceOf(deployer), token.totalSupply(), "unexpected initial balance for deployer");
         assertEq(token.balanceOf(personA), 0, "unexpected initial blance for person a");
     }
