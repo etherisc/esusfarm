@@ -3,6 +3,8 @@
 
 ### Foundry/forge
 out/
+broadcast/
+cache/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

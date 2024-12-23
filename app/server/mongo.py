@@ -48,6 +48,11 @@ mongo_client = None
 mongo_collections = {}
 
 
+def count_documents(cls) -> int:
+    collection = get_collection_for_class(cls)
+    return collection.count_documents({})
+
+
 def create_in_collection(obj, cls):
     collection = get_collection_for_object(obj)
     document = obj.toMongoDict()
@@ -76,6 +81,7 @@ def find_in_collection(obj_id: str, cls):
 
     return cls.fromMongoDict(document)
 
+
 def update_in_collection(obj, cls):
     collection = get_collection_for_object(obj)
     document = obj.toMongoDict()
@@ -97,6 +103,20 @@ def get_list_of_models_in_collection(cls, page: int, items_per_page: int):
     result_set = _get_list_as_result_set(cls, page, items_per_page)
 
     documents = []
+    for document in result_set:
+        documents.append(cls.fromMongoDict(document))
+    
+    return documents
+
+
+def get_filtered_list_of_models_in_collection(cls, filter):
+    collection_name = get_collection_name_for_class(cls)
+    logger.info(f"fetching from {collection_name} with filter {filter}")
+
+    collection = get_collection_for_class(cls)
+    result_set = collection.find(filter)
+    documents = []
+
     for document in result_set:
         documents.append(cls.fromMongoDict(document))
     

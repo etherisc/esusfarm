@@ -325,117 +325,77 @@ https://wise.com/gb/currency-converter/ugx-to-eur-rate
 
 ## Python Setup
 
-After a devcontainer rebuild you might need to uninstall/reinstall the right python packages first
-
-You have to cd first as two incompatible `requirements.txt` are needed
-
-### Apple Silicon
-
-Install rosetta 2 first
-
-```bash
-/usr/sbin/softwareupdate --install-rosetta --agree-to-license
-```
-
-Rebulid container 
-
-### Brownie Setup
-
-Inside devocontainer shell install brownie and compile contracts
-
-```bash
-pip install eth-brownie
-brownie console
-```
-
-in console
-```python
-def frm(account):
-    # priority fee attribute required when working with anvii
-    return {'from':account, 'priority_fee': '2 gwei'}
-
-cnt = Counter.deploy(frm(accounts[0]))
-cnt.setValue(42, frm(accounts[0]))
-cnt.value()
-```
-
-### Step by Step
-
-```bash
-# you have to cd first as two incompatible requirements.txt are needed
-cd scripts
-# or here
-cd app
-
-pip freeze > uninstall.txt
-pip uninstall -y -r uninstall.txt
-pip install -r requirements.txt
-rm uninstall.txt
-```
-
-Check Brownie Console (Anvil)
-```bash
-touch /home/vscode/.brownie/packages/etherisc/gif-interface@2.0.0-rc.1/.env
-touch /home/vscode/.brownie/packages/etherisc/gif-contracts@2.0.0-rc.1-chainlink.1.3.13/.env
-brownie console
-```
-
-```python
-xof = EXOF.deploy({'from': accounts[0], 'gas_price': web3.eth.gas_price})
-xof.symbol()
-```
-
-Deploy Setup on local Anvil
-```python
-from scripts.deploy import help
-help()
-```
-
-## Finalize Season
-
-1. Transfer model owner back to product_owner
-1. Finalize risk
-1. Process policy
-
-```python
-product.transferModel(product.getOwner(), {'from': product.getOwner(). 'gas_price': web3.eth.gas_price})
-model.setRisk(risk_id, True, True, {'from': model.owner(), 'gas_price': web3.eth.gas_price})
-product.processPolicy(policy_id, {'from': product.getOwner(), 'gas_price': web3.eth.gas_price})
-```
-
-
-## Work with Polygon Mainnet
-Add polygon to brownie networks and start console using it.
-
-Set the alchemy project id in the .env file in the project root.
-```
-WEB3_ALCHEMY_PROJECT_ID=X...
-```
-
-```bash
-brownie networks import polygon-network.yaml
-brownie console --network=polygon-alchemy
-```
-
-## Upload Data
-
-```bash
-cd upload_data
-python
-```
-
-Current state
-```python
-from read_pam import load
-data = load()
-
-#  check 1st row of pam excel
-data['Reporting PAM'][2]
-```
-
-## Python Setup
-
 [UV](https://astral.sh/blog/uv) is used for Python project and package management.
+
+## Deploying Mock Contracts to Local Anvil
+
+
+### Start a Local Anvil Chain
+
+1. Open a new terminal
+1. Reset the `.env` file with a newly created account
+1. Unset old env variables
+1. Set new mnemonic variable
+1. Start `anvil` with it
+
+```shell
+uv run python3 app/init.py > .env
+unset ETH_ADDRESS ETH_PRIVATE_KEY ETH_MNEMONIC
+export ETH_MNEMONIC=$(grep ETH_MNEMONIC .env | cut -d\" -f2)
+anvil --mnemonic $ETH_MNEMONIC
+```
+
+### Deploy Mock Contracts to Local Anvil
+
+1. Open a new shell
+1. Run deploy script with `forge script` using the new private key in the `.env` file
+1. Record the address of the newly deployed token and product contracts (used as `<contract-address>` below)
+
+```shell
+forge clean
+forge script script/MockSetup.s.sol --fork-url http://127.0.0.1:8545 --broadcast --private-key $(grep ETH_PRIVATE_KEY .env | cut -d= -f2)
+```
+
+4. Update `PRODUCT_CONTRACT_ADDRESS` and `TOKEN_CONTRACT_ADDRESS` in `./app/.env` accordingly
+5. Set OPERATOR_WALLET_MNEMONIC to ETH_MNEMONIC
+
+### Interact with the Mock Contracts
+
+1. set the `ETH_MNEMONIC` variable using the `.env` file
+1. Start a python shell
+
+```shell
+cd app
+eval $(echo export $(grep MNEMONIC .env))
+eval $(echo export $(grep CONTRACT_ADDRESS .env))
+uv run python3
+```
+
+Follow the steps in the python shell below.
+
+```python
+import os
+
+from web3 import Web3
+from web3utils.contract import Contract
+from web3utils.wallet import Wallet
+
+# create account using the env variable mnemonic
+w = Wallet.from_mnemonic(os.getenv('ETH_MNEMONIC'))
+a = Wallet.create()
+
+# verify that w3_uri matches with your anvil chain
+w3_uri = "http://127.0.0.1:8545"
+w3 = Web3(Web3.HTTPProvider(w3_uri))
+
+# replace contract addresses with your own 
+product = Contract(w3, "CropProduct", "0xdA0b2cf6B65a98d06Cd77212509537dD166A19cE")
+token = Contract(w3, "AccountingToken", "0xB58192974A93B9143Ef5F91Ab8b0545092b65803")
+
+token.transfer(a, 100, {'from':w})
+token.balanceOf(a)
+token.balanceOf(w)
+```
 
 ## Running the API Server Locally
 
@@ -446,6 +406,8 @@ uv run python3 app/main.py
 Open the browser at `http://localhost:8000`. 
 The actual port is shown in the ports tab of VSCode.
 
+To check/modify data use MongoDB Compass at `mongodb://localhost:27017`.
+The DB `mongo` holds the collections `policies`, `risks`, etc.
 
 ### Initial Project Setup
 

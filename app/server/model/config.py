@@ -1,32 +1,36 @@
-from pydantic import BaseModel, Field
+from datetime import datetime
+
+from pydantic import BaseModel, field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
 
 EXAMPLE_IN = {
-    "isValid": True,
     "name": "MainSeasons2024",
-    "year": 2024,
     "startOfSeason": "2024-08-01",
-    "endOfSeason": "2024-12-31",
-    "seasonDays": 120,
-    "franchise": 0.1,
-    "createdAt": 1700316957,
-    "updatedAt": 1700316957,
+    "endOfSeason": "2024-12-31"
 }
 
 EXAMPLE_OUT = EXAMPLE_IN
 EXAMPLE_OUT["_id"] = "7Zv4TZoBLxUi"
+EXAMPLE_OUT["year"] = 2014
+EXAMPLE_OUT["seasonDays"] = 120
 
 class ConfigIn(MongoModel):
-    isValid:bool
     name:str
-    year:int
     startOfSeason:str
     endOfSeason:str
-    seasonDays:int
-    franchise:float
-    createdAt:int
-    updatedAt:int
+
+    @field_validator('startOfSeason', 'endOfSeason')
+    @classmethod
+    def date_must_be_iso(cls, v: str) -> str:
+        date = v.strip()
+        try:
+            datetime.fromisoformat(date)
+        except ValueError:
+            raise ValueError("Provided string is not a valid ISO date.")
+            raise_with_log(ValueError, f"date {date} is not iso format (YYYY-MM-DD)")
+
+        return date
 
     class Config:
         json_schema_extra = {
@@ -35,7 +39,10 @@ class ConfigIn(MongoModel):
 
 class ConfigOut(ConfigIn):
     _id: str
+    year:int
+    seasonDays:int
     id: str = Field(default=None)
+    tx: str | None = Field(default=None)
 
     class Config:
         json_schema_extra = {

@@ -2,7 +2,7 @@ from pydantic import field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
 from util.nanoid import is_valid_nanoid
-from util.wallet import generate_wallet, is_valid_wallet_address
+from web3utils.wallet import Wallet
 
 EXAMPLE_IN = {
     "locationId": "U6ufadiIe0Xz",
@@ -11,11 +11,13 @@ EXAMPLE_IN = {
     "firstName": "Florence",
     "gender": "f",
     "mobilePhone": "+25656234567",
-    "wallet":  "0x03507c8a16513F1615bD4a00BDD4570514a6ef21"
 }
 
 EXAMPLE_OUT = EXAMPLE_IN
 EXAMPLE_OUT["id"] = "fXJ6Gwfgnw-C"
+EXAMPLE_OUT["walletIndex"] = 2345,
+EXAMPLE_OUT["wallet"] = "0x03507c8a16513F1615bD4a00BDD4570514a6ef21"
+EXAMPLE_OUT["tx"] = "0x10cc6457d494d0fee7aeb89c63bcdd98f90aad18bb761591d8da1314551ca3ca"
 
 class PersonIn(MongoModel):
     lastName: str
@@ -23,8 +25,7 @@ class PersonIn(MongoModel):
     gender: str
     mobilePhone: str
     locationId: str
-    wallet: str = Field(default=None)
-    externalId: str = Field(default=None)
+    externalId: str | None = Field(default=None)
 
     @field_validator('locationId')
     @classmethod
@@ -46,29 +47,15 @@ class PersonIn(MongoModel):
 
     @field_validator('gender')
     @classmethod
-    def sex_must_be_m_or_f(cls, v: str) -> str:
+    def gender_must_be_m_or_f(cls, v: str) -> str:
         if v is None:
             return None
 
-        sex = v.strip().lower()
-        if sex not in ["m", "f"]:
-            raise_with_log(ValueError, f"sex {sex} invalid, must be 'm' or 'f'")
+        gender = v.strip().lower()
+        if gender not in ["m", "f"]:
+            raise_with_log(ValueError, f"gender {gender} invalid, must be 'm' or 'f'")
 
-        return sex
-
-    @field_validator('wallet')
-    @classmethod
-    def create_wallet_if_none(cls, v: str) -> str:
-        print(f"validating wallet {v} ...")
-        wallet = v
-        if wallet is None:
-            wallet = generate_wallet()
-        else:
-            if not is_valid_wallet_address(wallet):
-                raise_with_log(ValueError, f"invalid wallet address {wallet}")
-        
-        print(f"wallet now: {v}")
-        return wallet
+        return gender
 
     class Config:
         json_schema_extra = {
@@ -78,6 +65,31 @@ class PersonIn(MongoModel):
 class PersonOut(PersonIn):
     _id: str
     id: str = Field(default=None)
+    walletIndex: int | None = Field(default=None)
+    wallet: str = Field(default=None)
+    tx: str | None = Field(default=None)
+
+    @field_validator('walletIndex')
+    @classmethod
+    def wallet_index_must_be_positive(cls, v: int) -> int:
+        wallet_index = v
+        if not isinstance(wallet_index, int):
+            raise_with_log(ValueError, f"wallet index must be of type int")
+        if wallet_index < 0:
+            raise_with_log(ValueError, f"wallet index must be positive")
+
+        return wallet_index
+
+    @field_validator('wallet')
+    @classmethod
+    def create_wallet_if_none(cls, v: str) -> str:
+        print(f"validating wallet {v} ...")
+        wallet = v
+        if wallet is None:
+            raise_with_log(ValueError, f"wallet address must not be emtpy")
+        
+        print(f"wallet now: {v}")
+        return wallet
 
     class Config:
         json_schema_extra = {

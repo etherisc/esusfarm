@@ -42,3 +42,9 @@ async def get_all_locations_csv(
     documents = get_list_of_dicts_in_collection(LocationOut, page, items)
     field_list = get_field_list(fields)
     return write_csv_temp_file(field_list, documents, delimiter)
+
+
+@router.get("/all/pending", response_model=list[LocationOut], response_description="Locations obtained")
+async def get_all_locations_to_sync(page: int = 1, items: int = settings.MONGO_DOCUMENTS_PER_PAGE):
+    logger.info(f"GET {PATH_PREFIX}/all/json")
+    return get_new_locations()

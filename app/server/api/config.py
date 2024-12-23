@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from fastapi.responses import FileResponse
 from fastapi.routing import APIRouter
 
 from server.config import settings
+from server.error import raise_with_log
 from server.model.config import ConfigIn, ConfigOut
 from server.mongo import create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
 
@@ -19,6 +22,18 @@ router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 @router.post("/", response_model=ConfigOut, response_description="Config data created")
 async def create_config(config: ConfigIn):
     logger.info(f"POST {PATH_PREFIX} {config}")
+
+    # check season start and end and calculate season days
+    season_start = datetime.fromisoformat(config.startOfSeason)
+    season_end = datetime.fromisoformat(config.endOfSeason)
+    if season_start >= season_end:
+        raise_with_log(ValueError, f"season start {config.startOfSeason} must be before season end {config.endOfSeason}")
+
+    document = config.toMongoDict()
+    document['year'] = season_start.year
+    document['seasonDays'] = (season_end - season_start).days + 1
+    config = ConfigOut.fromMongoDict(document)
+
     return create_in_collection(config, ConfigOut)
 
 
