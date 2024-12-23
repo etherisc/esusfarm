@@ -1,16 +1,22 @@
 import json
 from typing import Any, Dict
+from util.logging import get_logger
 
 from web3 import Web3
 from web3.contract import Contract as Web3Contract
+from web3.exceptions import TimeExhausted
 from web3.types import FilterParams
 from web3utils.wallet import Wallet
+
+# setup for module
+logger = get_logger()
 
 class Contract:
 
     FOUNDRY_OUT = "../out"
     SOLIDITY_EXT = "sol"
     GAS = 1000000
+    TX_TIMEOUT_SECONDS = 120
 
     name:str|None = None
     abi:Dict[str, Any]|None = None
@@ -45,10 +51,10 @@ class Contract:
                 mutability = func.get('stateMutability')
 
                 if mutability in ['nonpayable', 'payable']:
-                    # print(f"creating {func_name}(...) tx")
+                    logger.info(f"creating {func_name}(...) tx")
                     setattr(self, func_name, self._create_write_method(func_name))
                 elif mutability in ['view', 'pure']:
-                    # print(f"creating {func_name}(...) call")
+                    logger.info(f"creating {func_name}(...) call")
                     setattr(self, func_name, self._create_read_method(func_name))
 
     def _create_read_method(self, func_name: str):
@@ -57,7 +63,7 @@ class Contract:
                 modified_args = [arg.address if isinstance(arg, Wallet) else arg for arg in args]
                 return getattr(self.contract.functions, func_name)(*modified_args, **kwargs).call()
             except Exception as e:
-                print(f"Error calling function '{func_name}': {e}")
+                logger.warn(f"Error calling function '{func_name}': {e}")
                 return None
 
         # Optionally, add docstrings or additional attributes here
@@ -113,12 +119,29 @@ class Contract:
 
                 # send signed transaction
                 tx_hash = self.w3.eth.send_raw_transaction(signed_txn.raw_transaction)
-                print(f"Transaction sent: {tx_hash.hex()}")
+                logger.info(f"Transaction sent: {tx_hash.hex()}")
+
+                if 'timeout' not in tx_params:
+                    timeout = self.TX_TIMEOUT_SECONDS
+                else:
+                    timeout = tx_params['timeout'] if tx_params['timeout'] is not None else self.TX_TIMEOUT_SECONDS
+
+                try:
+                    receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+                except TimeExhausted:
+                    logger.warning(f"Transaction timeout after {timeout} seconds.")
+                    return tx_hash.hex()
+
+                if receipt['status'] == 1:
+                    logger.info(f"Transaction successful: {receipt}")
+                else:
+                    logger.warning(f"Transaction failed: {receipt}")
+
                 return tx_hash.hex()
 
             except Exception as e:
-                print(f"Error sending transaction for function '{func_name}': {e}")
-                return ""
+                logger.warning(f"Error sending transaction for function '{func_name}': {e}")
+                return tx_hash.hex()
 
         write_method.__name__ = func_name
         write_method.__doc__ = f"Sends a transaction to the '{func_name}' function of the contract."
