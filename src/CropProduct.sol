@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import {Amount, Location, NftId, RiskId, Str, Timestamp} from "./Types.sol";
 
 contract CropProduct {
-
     event LogCropPolicyCreated(NftId policyNftId);
 
     error StringTooLong(string str);
@@ -22,30 +21,13 @@ contract CropProduct {
         Str seasonStart, // ISO 8601 date, eg "2025-02-18"
         Str seasonEnd,
         uint16 seasonDays
-    )
-        external
-    { }
+    ) external {}
 
-    function createLocation(
-        Str locationId,
-        int32 latitude,
-        int32 longitude
-    )
-        external
-        returns (Location location)
-    { }
+    function createLocation(Str locationId, int32 latitude, int32 longitude) external returns (Location location) {}
 
-    function createCrop(Str crop)
-        external
-    { }
+    function createCrop(Str crop) external {}
 
-    function createRisk(
-        Str id,
-        Str seasonId,
-        Str locationId,
-        Str crop,
-        Timestamp seasonEndAt
-    )
+    function createRisk(Str id, Str seasonId, Str locationId, Str crop, Timestamp seasonEndAt)
         external
         returns (RiskId riskId)
     {
@@ -60,10 +42,7 @@ contract CropProduct {
         Timestamp activateAt,
         Amount sumInsuredAmount,
         Amount premiumAmount
-    )
-        external
-        returns (NftId policyNftId)
-    { 
+    ) external returns (NftId policyNftId) {
         policyNftCounter++;
         policyNftId = NftId.wrap(1000 * policyNftCounter + 101);
         emit LogCropPolicyCreated(policyNftId);
@@ -71,12 +50,8 @@ contract CropProduct {
         return policyNftId;
     }
 
-    function getRiskId(Str id)
-        external
-        view
-        returns (RiskId riskId)
-    { 
-        return _riskId[id]; 
+    function getRiskId(Str id) external view returns (RiskId riskId) {
+        return _riskId[id];
     }
 
     /// @dev converts the provided string into a short string.

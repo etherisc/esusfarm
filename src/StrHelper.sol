@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 type Str is bytes32;
 
 contract StrHelper {
-
     error StringTooLong(string str);
     error InvalidShortString();
 
@@ -30,7 +29,6 @@ contract StrHelper {
         }
         return str;
     }
-
 
     /// @dev returns the length of the provided short string.
     /// code from OZ ShortStrings.byteLength
