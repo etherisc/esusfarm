@@ -349,14 +349,17 @@ anvil --mnemonic $ETH_MNEMONIC
 
 1. Open a new shell
 1. Run deploy script with `forge script` using the new private key in the `.env` file
-1. Record the address of the newly deployed contract (used as `<contract-address>` below)
+1. Record the address of the newly deployed token and product contracts (used as `<contract-address>` below)
 
 ```shell
 forge clean
 forge script script/MockSetup.s.sol --fork-url http://127.0.0.1:8545 --broadcast --private-key $(grep ETH_PRIVATE_KEY .env | cut -d= -f2)
 ```
 
-### Interact with the Counter Contract
+4. Update `PRODUCT_CONTRACT_ADDRESS` and `TOKEN_CONTRACT_ADDRESS` in `./app/.env` accordingly
+5. Set OPERATOR_WALLET_MNEMONIC to ETH_MNEMONIC
+
+### Interact with the Mock Contracts
 
 1. set the `ETH_MNEMONIC` variable using the `.env` file
 1. Start a python shell
@@ -403,6 +406,8 @@ uv run python3 app/main.py
 Open the browser at `http://localhost:8000`. 
 The actual port is shown in the ports tab of VSCode.
 
+To check/modify data use MongoDB Compass at `mongodb://localhost:27017`.
+The DB `mongo` holds the collections `policies`, `risks`, etc.
 
 ### Initial Project Setup
 

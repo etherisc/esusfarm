@@ -5,11 +5,13 @@ import {Amount, Location, NftId, RiskId, Str, Timestamp} from "./Types.sol";
 
 contract CropProduct {
 
+    event LogCropPolicyCreated(NftId policyNftId);
+
     error StringTooLong(string str);
     error InvalidShortString();
 
     uint256 public riskCounter;
-    uint96 public policyNftCounter = 100101;
+    uint96 public policyNftCounter = 100;
 
     mapping(Str id => RiskId riskId) internal _riskId;
 
@@ -63,7 +65,10 @@ contract CropProduct {
         returns (NftId policyNftId)
     { 
         policyNftCounter++;
-        return NftId.wrap(policyNftCounter);
+        policyNftId = NftId.wrap(1000 * policyNftCounter + 101);
+        emit LogCropPolicyCreated(policyNftId);
+
+        return policyNftId;
     }
 
     function getRiskId(Str id)

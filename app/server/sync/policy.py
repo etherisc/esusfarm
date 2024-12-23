@@ -1,7 +1,7 @@
 from datetime import datetime
 from util.logging import get_logger
 
-from server.mongo import find_in_collection
+from server.mongo import find_in_collection, update_in_collection
 from server.model.person import PersonOut
 from server.model.policy import PolicyOut
 from server.model.risk import RiskOut
@@ -37,8 +37,14 @@ def sync_policy_onchain(policy: PolicyOut):
     sum_insured = int(policy.sumInsuredAmount)
     premium = int(policy.premiumAmount)
 
-
     activate_at = int()
     tx = product.createPolicy(policy_holder, risk_id, activate_at, sum_insured, premium, {'from': operator})
 
     logger.info(f"{tx} onchain policy {policy.id} created")
+
+    # update policy with tx and nft id
+    logs = product.get_logs({'fromBlock':'latest'})
+    log_policy = product.contract.events.LogCropPolicyCreated.process_log(logs[0])
+    policy.nft = log_policy.args['policyNftId']
+    policy.tx = tx
+    update_in_collection(policy, PolicyOut)

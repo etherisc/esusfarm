@@ -15,11 +15,11 @@ def sync_config_onchain(config: ConfigOut):
 
     logger.info(f"synching config {config.id} onchain")
 
-    id = helper.toStr(config.id)
+    id = product.toStr(config.id)
     year = config.year
-    name = helper.toStr(config.name)
-    season_start = helper.toStr(config.name)
-    season_end = helper.toStr(config.name)
+    name = product.toStr(config.name)
+    season_start = product.toStr(config.name)
+    season_end = product.toStr(config.name)
     season_days = config.seasonDays
 
     # execute transaction
