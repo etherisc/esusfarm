@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     # account mnemonics (only via .env)
     FARMER_WALLET_MNEMONIC: str | None
     OPERATOR_WALLET_MNEMONIC: str | None
+    OPERATOR_ACCOUNT_INDEX: int = 0 # for local testing, for prod set value to 2
 
     # farmer minimum funding amount
     FARMER_FUNDING_AMOUNT: int = 100000001
