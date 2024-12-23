@@ -10,14 +10,14 @@ ENV SERVER_HOST=0.0.0.0
 ENV SERVER_PORT=8000
 ENV MONGO_URL=mongodb://localhost:27017
 
-# copy source code
-COPY /app /app
-COPY .python-version /app
-COPY pyproject.toml /app
-COPY uv.lock /app
+WORKDIR /esusfarm
 
-WORKDIR /app
+# copy source code
+COPY /app ./app
+COPY .python-version .
+COPY pyproject.toml .
+COPY uv.lock .
 
 RUN uv sync --frozen
 
-CMD ["uv", "run", "python3", "main.py"]
+CMD ["uv", "run", "python3", "app/main.py"]
