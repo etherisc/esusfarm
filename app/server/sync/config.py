@@ -18,8 +18,8 @@ def sync_config_onchain(config: ConfigOut, force: bool = False):
     id = product.toStr(config.id)
     year = config.year
     name = product.toStr(config.name)
-    season_start = product.toStr(config.name)
-    season_end = product.toStr(config.name)
+    season_start = product.toStr(config.startOfSeason)
+    season_end = product.toStr(config.endOfSeason)
     season_days = config.seasonDays
 
     # execute transaction
