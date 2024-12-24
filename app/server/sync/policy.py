@@ -37,7 +37,6 @@ def sync_policy_onchain(policy: PolicyOut, force: bool = False):
     sum_insured = int(policy.sumInsuredAmount)
     premium = int(policy.premiumAmount)
 
-    activate_at = int()
     tx = product.createPolicy(policy_holder, risk_id, activate_at, sum_insured, premium, {'from': operator})
 
     logger.info(f"{tx} onchain policy {policy.id} created")

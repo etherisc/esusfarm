@@ -18,6 +18,11 @@ router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 @router.post("/", response_model=LocationOut, response_description="Location data created")
 async def create_location(location: LocationIn):
     logger.info(f"POST {PATH_PREFIX} {location}")
+
+    document = location.toMongoDict()
+    document['openstreetmap'] = f'https://www.openstreetmap.org/#map=14/{location.latitude}/{location.longitude}'
+    location = LocationOut.fromMongoDict(document)
+
     return create_in_collection(location, LocationOut)
 
 

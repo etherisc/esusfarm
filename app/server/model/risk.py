@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pydantic import field_validator, Field, BaseModel
 
 from server.config import settings
@@ -28,25 +29,14 @@ EXAMPLE_UPDATE_IN = {
     "finalPayout": 0.27
 }
 
-
-EXAMPLE_OUT = {
-    "id": "jxmbyupsh1rv",
-    "isValid": True,
-    "configId": "7Zv4TZoBLxUi",
-    "locationId": "kDho7606IRdr",
-    "crop": "coffee",
-    "startOfSeason": "2024-08-01",
-    "endOfSeason": "2024-11-30",
-    "deductible": 0.0,
-    "draughtLoss": 0.27,
-    "excessRainfallLoss": 0.05,
-    "totalLoss": 0.27,
-    "payout": 0.27,
-    "finalPayout": 0.27,
-    "onchainId": "2689313703",
-    "createdAt": 1700316957,
-    "updatedAt": 1700316957
-}
+EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
+EXAMPLE_OUT["draughtLoss"] = 0.27
+EXAMPLE_OUT["excessRainfallLoss"] = 0.05
+EXAMPLE_OUT["totalLoss"] = 0.27
+EXAMPLE_OUT["payout"] = 0.27
+EXAMPLE_OUT["finalPayout"] = 0.27
+EXAMPLE_OUT["createdAt"] = 1700316957
+EXAMPLE_OUT["updatedAt"] = 1700316957
 
 class RiskIn(BaseModel):
     isValid: bool

@@ -1,15 +1,12 @@
 import json
 from typing import Any, Dict
-from util.logging import get_logger
+from loguru import logger
 
 from web3 import Web3
 from web3.contract import Contract as Web3Contract
 from web3.exceptions import TimeExhausted
 from web3.types import FilterParams
 from web3utils.wallet import Wallet
-
-# setup for module
-logger = get_logger()
 
 class Contract:
 

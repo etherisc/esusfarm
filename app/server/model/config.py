@@ -1,18 +1,19 @@
 from datetime import datetime
 
+from copy import deepcopy
 from pydantic import BaseModel, field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
 
 EXAMPLE_IN = {
-    "name": "MainSeasons2024",
-    "startOfSeason": "2024-08-01",
-    "endOfSeason": "2024-12-31"
+    "name": "2025 First Seasons",
+    "startOfSeason": "2025-01-15",
+    "endOfSeason": "2025-06-30"
 }
 
-EXAMPLE_OUT = EXAMPLE_IN
+EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
 EXAMPLE_OUT["_id"] = "7Zv4TZoBLxUi"
-EXAMPLE_OUT["year"] = 2014
+EXAMPLE_OUT["year"] = 2025
 EXAMPLE_OUT["seasonDays"] = 120
 
 class ConfigIn(MongoModel):

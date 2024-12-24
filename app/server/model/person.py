@@ -1,8 +1,10 @@
+from copy import deepcopy
 from pydantic import field_validator, Field
+
 from server.error import raise_with_log
 from server.mongo import MongoModel
-from util.nanoid import is_valid_nanoid
 from web3utils.wallet import Wallet
+from util.nanoid import is_valid_nanoid
 
 EXAMPLE_IN = {
     "locationId": "U6ufadiIe0Xz",
@@ -13,7 +15,7 @@ EXAMPLE_IN = {
     "mobilePhone": "+25656234567",
 }
 
-EXAMPLE_OUT = EXAMPLE_IN
+EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
 EXAMPLE_OUT["id"] = "fXJ6Gwfgnw-C"
 EXAMPLE_OUT["walletIndex"] = 2345,
 EXAMPLE_OUT["wallet"] = "0x03507c8a16513F1615bD4a00BDD4570514a6ef21"

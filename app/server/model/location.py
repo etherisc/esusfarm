@@ -1,5 +1,6 @@
 import iso3166
 
+from copy import deepcopy
 from pydantic import field_validator, Field
 from server.error import raise_with_log
 from server.mongo import MongoModel
@@ -12,13 +13,12 @@ EXAMPLE_IN = {
     "village": "Kiziba",
     "latitude": -0.4365,
     "longitude": 31.6780,
-    "openstreetmap": "https://www.openstreetmap.org/#map=14/-0.4365/31.6780",
     "coordinatesLevel": "VILLAGE",
-    "onchainId": ""
 }
 
-EXAMPLE_OUT = EXAMPLE_IN
+EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
 EXAMPLE_OUT["_id"] = "kDho7606IRdr"
+EXAMPLE_OUT["openstreetmap"] = "https://www.openstreetmap.org/#map=14/-0.4365/31.6780",
 
 class LocationIn(MongoModel):
     country: str
@@ -28,9 +28,7 @@ class LocationIn(MongoModel):
     village: str
     latitude: float
     longitude: float
-    openstreetmap: str
     coordinatesLevel: str
-    onchainId: str = Field(default=None)
 
     @field_validator('country')
     @classmethod
@@ -51,6 +49,7 @@ class LocationIn(MongoModel):
 
 class LocationOut(LocationIn):
     _id: str
+    openstreetmap: str| None = Field(default=None)
     id: str = Field(default=None)
     tx: str | None = Field(default=None)
 

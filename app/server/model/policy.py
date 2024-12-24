@@ -1,4 +1,6 @@
+from copy import deepcopy
 from pydantic import field_validator, Field
+
 from server.error import raise_with_log
 from server.mongo import MongoModel
 from util.date import Date
@@ -8,12 +10,12 @@ EXAMPLE_IN = {
     "personId": "fXJ6Gwfgnw-C",
     "riskId": "t4FcP75uGHHc",
     "externalId": "ABC123",
-    "subscriptionDate": "2024-06-14",
+    "subscriptionDate": "2025-01-01",
     "sumInsuredAmount": 1000000.0,
     "premiumAmount": 200000.0,
 }
 
-EXAMPLE_OUT = EXAMPLE_IN
+EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
 EXAMPLE_OUT["id"] = "cwNCXQfypiTg"
 EXAMPLE_OUT["nft"] = "2689313703"
 
@@ -21,7 +23,7 @@ EXAMPLE_OUT["nft"] = "2689313703"
 MAX_MONETARY_AMOUNT = 5000000.0
 
 MIN_DATE = Date.create_from("2024-01-01")
-MAX_DATE = Date.create_from("2024-12-31")
+MAX_DATE = Date.create_from("2025-12-31")
 
 class PolicyIn(MongoModel):
     personId: str
