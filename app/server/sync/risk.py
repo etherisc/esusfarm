@@ -12,8 +12,8 @@ from server.sync.onchain import operator, product
 # setup for module
 logger = get_logger()
 
-def sync_risk_onchain(risk: RiskOut):
-    if risk.tx:
+def sync_risk_onchain(risk: RiskOut, force: bool = False):
+    if not force and risk.tx:
         logger.info(f"risk {risk.id} already synched onchain (tx: {risk.tx})")
         return
 
@@ -21,11 +21,11 @@ def sync_risk_onchain(risk: RiskOut):
 
     # sync configuration (season) if not yet done
     config = find_in_collection(risk.configId, ConfigOut)
-    sync_config_onchain(config)
+    sync_config_onchain(config, force)
 
     # sync risk if not yet done
     location = find_in_collection(risk.locationId, LocationOut)
-    sync_location_onchain(location)
+    sync_location_onchain(location, force)
 
     # execute transaction
     id = product.toStr(risk.id)

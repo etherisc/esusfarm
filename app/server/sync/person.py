@@ -8,8 +8,8 @@ from server.sync.onchain import token, operator
 # setup for module
 logger = get_logger()
 
-def sync_person_onchain(person: PersonOut):
-    if person.tx:
+def sync_person_onchain(person: PersonOut, force: bool = False):
+    if not force and person.tx:
         logger.info(f"person {person.id} already synched onchain (tx: {person.tx})") 
         return
 

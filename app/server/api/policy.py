@@ -28,8 +28,12 @@ async def create_policy(policy: PolicyIn) -> PolicyOut:
 
 @router.post("/{policy_id}/sync", response_description="Policy synched onchain")
 async def sync_policy(policy_id: str):
+    force = policy_id.endswith(":force")
+    if force:
+        policy_id = policy_id[:-6]
+
     policy = find_in_collection(policy_id, PolicyOut)
-    sync_policy_onchain(policy)
+    sync_policy_onchain(policy, force)
 
 @router.get("/{policy_id}", response_description="Policy data obtained")
 async def get_policy(policy_id: str):

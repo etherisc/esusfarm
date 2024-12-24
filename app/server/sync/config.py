@@ -8,8 +8,8 @@ from server.sync.onchain import operator, product
 # setup for module
 logger = get_logger()
 
-def sync_config_onchain(config: ConfigOut):
-    if config.tx:
+def sync_config_onchain(config: ConfigOut, force: bool = False):
+    if not force and config.tx:
         logger.info(f"config {config.id} already synched onchain (tx: {config.tx})") 
         return
 

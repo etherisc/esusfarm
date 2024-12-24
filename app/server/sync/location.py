@@ -8,8 +8,8 @@ from server.sync.onchain import operator, product
 # setup for module
 logger = get_logger()
 
-def sync_location_onchain(location: LocationOut):
-    if location.tx:
+def sync_location_onchain(location: LocationOut, force: bool = False):
+    if not force and location.tx:
         logger.info(f"location {location.id} already synched onchain (tx: {location.tx})") 
         return
 

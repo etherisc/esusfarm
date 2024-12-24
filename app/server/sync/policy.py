@@ -13,8 +13,8 @@ from server.sync.risk import sync_risk_onchain
 # setup for module
 logger = get_logger()
 
-def sync_policy_onchain(policy: PolicyOut):
-    if policy.tx:
+def sync_policy_onchain(policy: PolicyOut, force: bool = False):
+    if not force and policy.tx:
         logger.info(f"policy {policy.id} already synced onchain (nft {policy.nft}")
         return
 
@@ -22,11 +22,11 @@ def sync_policy_onchain(policy: PolicyOut):
 
     # sync person if not yet done
     person = find_in_collection(policy.personId, PersonOut)
-    sync_person_onchain(person)
+    sync_person_onchain(person, force)
 
     # sync risk if not yet done
     risk = find_in_collection(policy.riskId, RiskOut)
-    sync_risk_onchain(risk)
+    sync_risk_onchain(risk, force)
 
     # execute transaction
     policy_holder = person.wallet
@@ -43,8 +43,8 @@ def sync_policy_onchain(policy: PolicyOut):
     logger.info(f"{tx} onchain policy {policy.id} created")
 
     # update policy with tx and nft id
-    logs = product.get_logs({'fromBlock':'latest'})
-    log_policy = product.contract.events.LogCropPolicyCreated.process_log(logs[0])
-    policy.nft = log_policy.args['policyNftId']
+    # logs = product.get_logs({'fromBlock':'latest'})
+    # log_policy = product.contract.events.LogCropPolicyCreated.process_log(logs[0])
+    # policy.nft = log_policy.args['policyNftId']
     policy.tx = tx
     update_in_collection(policy, PolicyOut)
