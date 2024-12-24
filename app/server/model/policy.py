@@ -11,8 +11,8 @@ EXAMPLE_IN = {
     "riskId": "t4FcP75uGHHc",
     "externalId": "ABC123",
     "subscriptionDate": "2025-01-01",
-    "sumInsuredAmount": 1000000.0,
-    "premiumAmount": 200000.0,
+    "sumInsuredAmount": 600000.0,
+    "premiumAmount": 40000.0,
 }
 
 EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
@@ -20,7 +20,7 @@ EXAMPLE_OUT["id"] = "cwNCXQfypiTg"
 EXAMPLE_OUT["nft"] = "2689313703"
 
 # https://www.xe.com/currencyconverter/convert/?Amount=300&From=USD&To=UGX
-MAX_MONETARY_AMOUNT = 5000000.0
+MAX_MONETARY_AMOUNT = 5000000.0 # 5 million ugandan shillings
 
 MIN_DATE = Date.create_from("2024-01-01")
 MAX_DATE = Date.create_from("2025-12-31")

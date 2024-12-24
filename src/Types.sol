@@ -12,3 +12,5 @@ type RiskId is bytes8;
 type Str is bytes32;
 
 type Timestamp is uint40;
+
+type UFixed is uint160;

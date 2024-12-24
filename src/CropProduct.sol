@@ -1,13 +1,38 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
-import {Amount, Location, NftId, RiskId, Str, Timestamp} from "./Types.sol";
+import {Amount, Location, NftId, RiskId, Str, Timestamp, UFixed} from "./Types.sol";
 
 contract CropProduct {
     event LogCropPolicyCreated(NftId policyNftId);
 
     error StringTooLong(string str);
     error InvalidShortString();
+
+    struct Season {
+        uint16 year;
+        Str name;
+        Str seasonStart; // ISO 8601 date
+        Str seasonEnd; // ISO 8601 date
+        uint16 seasonDays;
+    }
+
+    struct CropRisk {
+        Str seasonId;
+        Str locationId;
+        Str crop;
+        Timestamp seasonEndAt;
+        UFixed payoutFactor;
+        bool payoutDefined;
+    }
+
+    // solhint-disable var-name-mixedcase
+    Amount public MIN_PREMIUM;
+    Amount public MAX_PREMIUM;
+    Amount public MIN_SUM_INSURED;
+    Amount public MAX_SUM_INSURED;
+    uint8 public MAX_POLICIES_TO_PROCESS = 1;
+    // solhint-enable var-name-mixedcase
 
     uint256 public riskCounter;
     uint96 public policyNftCounter = 100;
@@ -53,6 +78,22 @@ contract CropProduct {
     function getRiskId(Str id) external view returns (RiskId riskId) {
         return _riskId[id];
     }
+
+    function setConstants(
+        Amount minPremium,
+        Amount maxPremium,
+        Amount minSumInsured,
+        Amount maxSumInsured,
+        uint8 maxPoliciesToProcess
+    ) external {}
+
+    //--- view functions ----------------------------------------------------//
+
+    function crops() public view returns (Str[] memory) {}
+    function seasons() public view returns (Str[] memory) {}
+    function getSeason(Str seasonId) public view returns (Season memory season) {}
+    function getLocation(Str locationId) public view returns (Location location) {}
+    function getRisk(RiskId riskId) public view returns (bool exists, CropRisk memory cropRisk) {}
 
     /// @dev converts the provided string into a short string.
     /// code from OZ ShortStrings.toShortString

@@ -9,14 +9,13 @@ from server.mongo import MongoModel, get_collection_for_class
 from util.nanoid import is_valid_nanoid
 import time
 
-
 EXAMPLE_IN = {
     "isValid": True,
     "configId": "7Zv4TZoBLxUi",
     "locationId": "kDho7606IRdr",
     "crop": "coffee",
-    "startOfSeason": "2024-08-01",
-    "endOfSeason": "2024-11-30",
+    "startOfSeason": "2025-01-20",
+    "endOfSeason": "2025-06-15",
     "deductible": 0.0,
 }
 
