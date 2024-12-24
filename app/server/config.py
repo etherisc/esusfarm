@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     OPERATOR_ACCOUNT_INDEX: int = 0 # for local testing, for prod set value to 2
 
     # farmer minimum funding amount
-    FARMER_FUNDING_AMOUNT: int = 100000001
+    FARMER_FUNDING_AMOUNT: int = 200000000000
     FARMER_ETH_FUNDING_AMOUNT: int = 0.005 * 10 ** 18
 
     # smart contracs settings
