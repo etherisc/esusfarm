@@ -360,6 +360,7 @@ dependencies = [
     { name = "openpyxl" },
     { name = "pydantic-settings" },
     { name = "pymongo" },
+    { name = "python-dotenv" },
     { name = "uvicorn" },
     { name = "web3" },
 ]
@@ -375,6 +376,7 @@ requires-dist = [
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pydantic-settings", specifier = ">=2.7.0" },
     { name = "pymongo", specifier = ">=4.10.1" },
+    { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "uvicorn", specifier = ">=0.34.0" },
     { name = "web3", specifier = ">=7.6.0" },
 ]

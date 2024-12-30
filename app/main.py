@@ -1,7 +1,10 @@
+from dotenv import load_dotenv
 from uvicorn import run
 
 from server.config import settings
 from util.logging import get_logger
+
+load_dotenv()
 
 logger = get_logger()
 
