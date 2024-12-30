@@ -1,6 +1,7 @@
 from datetime import datetime
 from util.logging import get_logger
 
+from server.config import settings
 from server.mongo import find_in_collection, update_in_collection
 from server.model.person import PersonOut
 from server.model.policy import PolicyOut
@@ -34,10 +35,11 @@ def sync_policy_onchain(policy: PolicyOut, force: bool = False):
     risk_id = product.getRiskId(risk_id_str)
     subscription_date = datetime.fromisoformat(policy.subscriptionDate)
     activate_at = int(subscription_date.timestamp())
-    sum_insured = int(policy.sumInsuredAmount)
-    premium = int(policy.premiumAmount)
+    sum_insured = int(policy.sumInsuredAmount) * 10 ** settings.LOCATION_DECIMALS
+    premium = int(policy.premiumAmount) * 10 ** settings.LOCATION_DECIMALS
 
-    tx = product.createPolicy(policy_holder, risk_id, activate_at, sum_insured, premium, {'from': operator})
+    logger.info(f"creating policy policy_holder {policy_holder} risk_id {risk_id} activate_at {activate_at} sum_insured {sum_insured} premium {premium}")
+    tx = product.createPolicy(policy_holder, risk_id, activate_at, sum_insured, premium, {'from': operator, 'gasLimit': 10000000, 'gasPrice': settings.GAS_PRICE})
 
     logger.info(f"{tx} onchain policy {policy.id} created")
 

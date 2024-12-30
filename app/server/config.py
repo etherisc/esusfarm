@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     # farmer minimum funding amount
     FARMER_FUNDING_AMOUNT: int = 100000001
+    FARMER_ETH_FUNDING_AMOUNT: int = 0.005 * 10 ** 18
 
     # smart contracs settings
     PRODUCT_CONTRACT_ADDRESS: str | None
@@ -36,6 +37,9 @@ class Settings(BaseSettings):
 
     # rpc node settings (default is local anvil node)
     RPC_NODE_URL: str | None = "http://127.0.0.1:8545"
+
+    # gas price settings
+    GAS_PRICE: int = 25.5 * 10 ** 9
 
     # mongodb settings
     MONGO_ID_ATTRIBUTE: str = "_id"

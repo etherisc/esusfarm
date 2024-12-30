@@ -94,6 +94,7 @@ contract CropProduct {
     function getSeason(Str seasonId) public view returns (Season memory season) {}
     function getLocation(Str locationId) public view returns (Location location) {}
     function getRisk(RiskId riskId) public view returns (bool exists, CropRisk memory cropRisk) {}
+    function getTokenHandler() public virtual view returns (address tokenHandler) {}
 
     /// @dev converts the provided string into a short string.
     /// code from OZ ShortStrings.toShortString

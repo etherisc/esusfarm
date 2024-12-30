@@ -13,4 +13,4 @@ product = Contract(w3, "CropProduct", settings.PRODUCT_CONTRACT_ADDRESS, out_pat
 token = Contract(w3, "AccountingToken", settings.TOKEN_CONTRACT_ADDRESS, out_path="./app/abi")
 
 operator = Wallet.from_mnemonic(settings.OPERATOR_WALLET_MNEMONIC, index=settings.OPERATOR_ACCOUNT_INDEX)
-
+logger.info(f"operator wallet {operator.address}")

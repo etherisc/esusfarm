@@ -6,7 +6,10 @@ from web3 import Web3
 from web3.contract import Contract as Web3Contract
 from web3.exceptions import TimeExhausted
 from web3.types import FilterParams
+from util.logging import get_logger
 from web3utils.wallet import Wallet
+
+logger = get_logger()
 
 class Contract:
 
@@ -92,23 +95,30 @@ class Contract:
 
             try:
                 wallet = tx_params['from']
+                logger.info(f"Sending transaction for function '{func_name}' with wallet: {wallet.address}")
 
                 # create tx properties
                 chain_id = self.w3.eth.chain_id
                 gas = tx_params.get('gas', self.GAS)
                 gas_price = tx_params.get('gasPrice', self.w3.eth.gas_price)
+                gas_limit = tx_params.get('gasLimit', None)
                 nonce = self.w3.eth.get_transaction_count(wallet.address)
 
                 # transform wallet args to addresses (str)
                 modified_args = [arg.address if isinstance(arg, Wallet) else arg for arg in function_args]
 
-                # create tx
-                txn = getattr(self.contract.functions, func_name)(*modified_args).build_transaction({
+                options = {
                     'chainId': chain_id,
                     'gas': gas,
                     'gasPrice': gas_price,
                     'nonce': nonce,
-                })
+                }
+
+                if gas_limit:
+                    options['gas'] = gas_limit
+
+                # create tx
+                txn = getattr(self.contract.functions, func_name)(*modified_args).build_transaction(options)
 
                 # sign tx
                 private_key = bytes(wallet.account.key)
@@ -138,7 +148,10 @@ class Contract:
 
             except Exception as e:
                 logger.warning(f"Error sending transaction for function '{func_name}': {e}")
-                return tx_hash.hex()
+                if 'tx_hash' in locals():
+                    logger.warning(f"Transaction hash: {tx_hash.hex()}")
+                    return tx_hash.hex()
+                return None
 
         write_method.__name__ = func_name
         write_method.__doc__ = f"Sends a transaction to the '{func_name}' function of the contract."
