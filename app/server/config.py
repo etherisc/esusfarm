@@ -20,8 +20,8 @@ class Settings(BaseSettings):
     MODEL_CSV_CONFIG_FIELDS: str = "id,isValid,name,year,startOfSeason,endOfSeason,createdAt,updatedAt"
 
     # account mnemonics (only via .env)
-    FARMER_WALLET_MNEMONIC: str | None
-    OPERATOR_WALLET_MNEMONIC: str | None
+    FARMER_WALLET_MNEMONIC: str | None = None
+    OPERATOR_WALLET_MNEMONIC: str | None = None
     OPERATOR_ACCOUNT_INDEX: int = 0 # for local testing, for prod set value to 2
 
     # farmer minimum funding amount
@@ -29,8 +29,8 @@ class Settings(BaseSettings):
     FARMER_ETH_FUNDING_AMOUNT: int = 0.005 * 10 ** 18
 
     # smart contracs settings
-    PRODUCT_CONTRACT_ADDRESS: str | None
-    TOKEN_CONTRACT_ADDRESS: str | None
+    PRODUCT_CONTRACT_ADDRESS: str | None = None
+    TOKEN_CONTRACT_ADDRESS: str | None = None
 
     # onchain latitude longitude decimals
     LOCATION_DECIMALS: int = 6

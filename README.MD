@@ -388,9 +388,9 @@ a = Wallet.create()
 w3_uri = "http://127.0.0.1:8545"
 w3 = Web3(Web3.HTTPProvider(w3_uri))
 
-# replace contract addresses with your own 
-product = Contract(w3, "CropProduct", "0xdA0b2cf6B65a98d06Cd77212509537dD166A19cE")
-token = Contract(w3, "AccountingToken", "0xB58192974A93B9143Ef5F91Ab8b0545092b65803")
+# replace contract addresses with your own (amoy addresses below)
+product = Contract(w3, "CropProduct", "0x6d39A6458ABa448d3C5cbC00f2135352197e6091")
+token = Contract(w3, "AccountingToken", "0x612ef62560Ceb3b114fC302f7F54F4D493371D6B")
 
 token.transfer(a, 100, {'from':w})
 token.balanceOf(a)
