@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     APP_DEBUG: bool = False
 
     # list of valid crops
-    VALID_CROPS: list = ["coffee", "maize"]
+    VALID_CROPS: str = "coffee,maize,beans,potatoes"
 
     # model fields settings
     MODEL_ID_ATTRIBUTE: str = "id"

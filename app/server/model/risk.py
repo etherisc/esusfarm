@@ -79,8 +79,8 @@ class RiskIn(BaseModel):
     def crop_must_be_valid(cls, v: str) -> str:
         crop = v.strip().lower()
 
-        if crop not in settings.VALID_CROPS:
-            raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {VALID_CROPS}")
+        if crop not in settings.VALID_CROPS.split(","):
+            raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {settings.VALID_CROPS}")
 
         return crop
 
@@ -163,8 +163,8 @@ class Risk(MongoModel):
     def crop_must_be_valid(cls, v: str) -> str:
         crop = v.strip().lower()
 
-        if crop not in settings.VALID_CROPS:
-            raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {VALID_CROPS}")
+        if crop not in settings.VALID_CROPS.split(","):
+            raise_with_log(ValueError, f"crop {crop} invalid, valid crops are {settings.VALID_CROPS}")
 
         return crop
 
