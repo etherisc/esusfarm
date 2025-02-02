@@ -6,6 +6,7 @@ from eth_account.signers.local import LocalAccount
 from eth_account.types import Language
 
 from util.password import generate_password
+from web3 import Web3
 
 
 class Wallet:
@@ -43,6 +44,42 @@ class Wallet:
         self.language = None
         self.path = ETHEREUM_DEFAULT_PATH
         self.index = Wallet.INDEX_DEFAULT
+
+    def transfer(
+        self, 
+        w3:Web3, 
+        to:str, 
+        amount:int,
+        gas:int|None=None, 
+        gas_price:int|None=None, 
+    ) -> str:
+        """Transfer a specified amount of wei to a specified address."""
+        if not self.account:
+            raise ValueError("Account not initialized")
+
+        if not gas:
+            gas = w3.eth.estimate_gas({
+                'to': to,
+                'from': self.address,
+                'value': amount
+            })
+
+        if not gas_price:
+            gas_price = w3.eth.gas_price
+
+        tx = {
+            "to": to,
+            "value": amount,
+            "nonce": w3.eth.get_transaction_count(self.address),
+            "gas": gas,
+            "gasPrice": gas_price,
+        }
+
+        signed_tx = self.account.sign_transaction(tx)
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+
+        return tx_hash.hex()
+
 
     @classmethod
     def create(

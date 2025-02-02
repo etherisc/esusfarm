@@ -16,7 +16,7 @@ contract MocksSetupScript is Script {
 
         vm.startBroadcast(privateKey);
         token = new AccountingToken();
-        product = new CropProduct();
+        product = new CropProduct(token);
         vm.stopBroadcast();
 
         console.log("Token deployed", address(token));

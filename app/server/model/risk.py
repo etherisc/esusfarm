@@ -168,10 +168,19 @@ class Risk(MongoModel):
 
         return crop
 
+    @field_validator('finalPayout')
+    @classmethod
+    def final_payout_must_be_between_0_and_1(cls, v: float) -> float:
+        if v < 0:
+            raise_with_log(ValueError, f"final payout {v} must be >= 0")
+        if v > 1:
+            raise_with_log(ValueError, f"final payout {v} must be <=1 0")
+        return v
 
 class RiskOut(Risk):
     id: str = Field(default=None)
     tx: str | None = Field(default=None)
+    risk_id: str | None = Field(default=None)
 
     class Config:
         json_schema_extra = {

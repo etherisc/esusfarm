@@ -43,9 +43,16 @@ def sync_policy_onchain(policy: PolicyOut, force: bool = False):
 
     logger.info(f"{tx} onchain policy {policy.id} created")
 
-    # update policy with tx and nft id
-    # logs = product.get_logs({'fromBlock':'latest'})
-    # log_policy = product.contract.events.LogCropPolicyCreated.process_log(logs[0])
-    # policy.nft = log_policy.args['policyNftId']
+    # update policy with tx
     policy.tx = tx
+
+    # update policy with policy nft
+    receipt = product.w3.eth.wait_for_transaction_receipt(tx)
+    logs = receipt['logs']
+    logger.debug(f"policy {policy.id} transaction logs {logs}")
+
+    log = [log for log in logs if log['address'].lower() == product.address.lower()][0]
+    logger.info(f"policy {policy.id} policy nft log {log}")
+
+    policy.nft = product.contract.events.LogCropPolicyCreated.process_log(log).args.policyNftId
     update_in_collection(policy, PolicyOut)

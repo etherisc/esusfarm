@@ -368,7 +368,7 @@ forge script script/MockSetup.s.sol --fork-url http://127.0.0.1:8545 --broadcast
 cd app
 eval $(echo export $(grep MNEMONIC .env))
 eval $(echo export $(grep CONTRACT_ADDRESS .env))
-uv run python3
+uv run python
 ```
 
 Follow the steps in the python shell below.
@@ -380,17 +380,24 @@ from web3 import Web3
 from web3utils.contract import Contract
 from web3utils.wallet import Wallet
 
-# create account using the env variable mnemonic
-w = Wallet.from_mnemonic(os.getenv('ETH_MNEMONIC'))
-a = Wallet.create()
-
 # verify that w3_uri matches with your anvil chain
 w3_uri = "http://127.0.0.1:8545"
 w3 = Web3(Web3.HTTPProvider(w3_uri))
 
-# replace contract addresses with your own (amoy addresses below)
-product = Contract(w3, "CropProduct", "0x6d39A6458ABa448d3C5cbC00f2135352197e6091")
-token = Contract(w3, "AccountingToken", "0x612ef62560Ceb3b114fC302f7F54F4D493371D6B")
+# create account using the env variable mnemonic
+w = Wallet.from_mnemonic(os.getenv('ETH_MNEMONIC'))
+operator = Wallet.from_mnemonic(os.getenv('OPERATOR_WALLET_MNEMONIC'))
+
+# send 1 eth to operator
+w.transfer(w3, operator.address, 1 * 10**18)
+
+# replace product contract addresses with your own (amoy addresses below)
+product_address = os.getenv('PRODUCT_CONTRACT_ADDRESS')
+product = Conw3, "CropProduct", product_address)
+token = Contract(w3, "AccountingToken", product.getToken())
+instance = Contract(w3, "Instance", product.getInstance())
+reader = Contract(w3, "InstanceReader", instance.getInstanceReader())
+risk_set = Contract(w3, "RiskSet", instance.getRiskSet())
 
 token.transfer(a, 100, {'from':w})
 token.balanceOf(a)
@@ -400,7 +407,7 @@ token.balanceOf(w)
 ## Running the API Server Locally
 
 ```bash
-uv run python3 app/main.py
+uv run python app/main.py
 ```
 
 Open the browser at `http://localhost:8000`. 

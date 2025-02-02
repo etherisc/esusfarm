@@ -11,12 +11,12 @@ def send_eth(sender: Wallet, rcpt: str, amount: int, gas_price: int) -> str:
         'nonce': nonce,  #prevents from sending a transaction twice on ethereum
         'to': rcpt,
         'value': w3.to_wei(amount, 'wei'),
-        'gas': 21000,
+        'gas': 30000,
         'gasPrice': gas_price,
         'chainId': w3.eth.chain_id
     }
     signed_tx = w3.eth.account.sign_transaction(tx, sender.account.key)
-    logger.info(f"Sending {amount} wei to {rcpt}")
+    logger.info(f"{sender.address} sending {amount} wei to {rcpt}")
     #send the transaction
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     logger.info(f"Transaction sent: {tx_hash.hex()}")

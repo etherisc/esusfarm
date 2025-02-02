@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
+import {AccountingToken} from "./AccountingToken.sol";
 import {Amount, Location, NftId, RiskId, Str, Timestamp, UFixed} from "./Types.sol";
 
 contract CropProduct {
     event LogCropPolicyCreated(NftId policyNftId);
+    event LogRiskSetRiskAdded(NftId indexed productNftId, RiskId indexed riskId);
 
     error StringTooLong(string str);
     error InvalidShortString();
@@ -34,10 +36,15 @@ contract CropProduct {
     uint8 public MAX_POLICIES_TO_PROCESS = 1;
     // solhint-enable var-name-mixedcase
 
+    AccountingToken token;
     uint256 public riskCounter;
     uint96 public policyNftCounter = 100;
 
     mapping(Str id => RiskId riskId) internal _riskId;
+
+    constructor(AccountingToken _token) {
+        token = _token;
+    }
 
     function createSeason(
         Str seasonId,
@@ -59,6 +66,8 @@ contract CropProduct {
         riskCounter++;
         riskId = RiskId.wrap(bytes8(keccak256(abi.encode(riskCounter))));
         _riskId[id] = riskId;
+
+        emit LogRiskSetRiskAdded(getNftId(), riskId);
     }
 
     function createPolicy(
@@ -79,6 +88,14 @@ contract CropProduct {
         return _riskId[id];
     }
 
+    function updatePayoutFactor(
+        RiskId riskId,
+        UFixed payoutFactor
+    )
+        external
+    {
+    }
+
     function setConstants(
         Amount minPremium,
         Amount maxPremium,
@@ -89,12 +106,18 @@ contract CropProduct {
 
     //--- view functions ----------------------------------------------------//
 
+    function getNftId() public view returns (NftId nftId) { return NftId.wrap(208000205); }
+    function getToken() public view returns (address tokenAddress) { return address(token); }
+    function getInstance() public view returns (address instance) { return address(this); }
+    function getRiskSet() public view returns (address riskSet) { return address(this); }
+    function getTokenHandler() public view virtual returns (address tokenHandler) {}
+
     function crops() public view returns (Str[] memory) {}
     function seasons() public view returns (Str[] memory) {}
     function getSeason(Str seasonId) public view returns (Season memory season) {}
     function getLocation(Str locationId) public view returns (Location location) {}
     function getRisk(RiskId riskId) public view returns (bool exists, CropRisk memory cropRisk) {}
-    function getTokenHandler() public view virtual returns (address tokenHandler) {}
+
 
     /// @dev converts the provided string into a short string.
     /// code from OZ ShortStrings.toShortString

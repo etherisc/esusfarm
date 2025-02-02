@@ -2,8 +2,9 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
+import {AccountingToken} from "../src/AccountingToken.sol";
 import {CropProduct} from "../src/CropProduct.sol";
-import {RiskId, Str, Timestamp} from "../src/Types.sol";
+import {NftId, RiskId, Str, Timestamp} from "../src/Types.sol";
 
 contract CropProductTest is Test {
     address deployer = makeAddr("deployer");
@@ -11,11 +12,20 @@ contract CropProductTest is Test {
     address teller = makeAddr("teller");
 
     CropProduct public product;
+    AccountingToken public token;
 
     function setUp() public {
         vm.startPrank(deployer);
-        product = new CropProduct();
+        token = new AccountingToken();
+        product = new CropProduct(token);
         vm.stopPrank();
+    }
+
+    function test_productSetUp() public {
+        assertEq(NftId.unwrap(product.getNftId()), 208000205, "unexpected dummy product nft id");
+        assertEq(product.getToken(), address(token), "unexpected token");
+        assertEq(product.getInstance(), address(product), "unexpected dummy instance address");
+        assertEq(product.getRiskSet(), address(product), "unexpected dummy risk set address");
     }
 
     function test_productRiskCreate() public {

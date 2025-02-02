@@ -13,7 +13,7 @@ logger = get_logger()
 
 class Contract:
 
-    FOUNDRY_OUT = "../out"
+    FOUNDRY_OUT = "./abi"
     SOLIDITY_EXT = "sol"
     GAS = 1000000
     TX_TIMEOUT_SECONDS = 120
@@ -63,7 +63,7 @@ class Contract:
                 modified_args = [arg.address if isinstance(arg, Wallet) else arg for arg in args]
                 return getattr(self.contract.functions, func_name)(*modified_args, **kwargs).call()
             except Exception as e:
-                logger.warn(f"Error calling function '{func_name}': {e}")
+                logger.warning(f"Error calling function '{func_name}': {e}")
                 return None
 
         # Optionally, add docstrings or additional attributes here
