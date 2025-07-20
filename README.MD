@@ -393,7 +393,7 @@ w.transfer(w3, operator.address, 1 * 10**18)
 
 # replace product contract addresses with your own (amoy addresses below)
 product_address = os.getenv('PRODUCT_CONTRACT_ADDRESS')
-product = Conw3, "CropProduct", product_address)
+product = Contract(w3, "CropProduct", product_address)
 token = Contract(w3, "AccountingToken", product.getToken())
 instance = Contract(w3, "Instance", product.getInstance())
 reader = Contract(w3, "InstanceReader", instance.getInstanceReader())
