@@ -1,19 +1,19 @@
 import json
+import logging
+
+from functools import wraps
 from typing import Any, Dict
-from loguru import logger
 
 from web3 import Web3
 from web3.contract import Contract as Web3Contract
 from web3.exceptions import TimeExhausted
 from web3.types import FilterParams
-from util.logging import get_logger
-from web3utils.wallet import Wallet
 
-logger = get_logger()
+from web3utils.wallet import Wallet
 
 class Contract:
 
-    FOUNDRY_OUT = "./abi"
+    FOUNDRY_OUT = "../out"
     SOLIDITY_EXT = "sol"
     GAS = 1000000
     TX_TIMEOUT_SECONDS = 120
@@ -51,10 +51,10 @@ class Contract:
                 mutability = func.get('stateMutability')
 
                 if mutability in ['nonpayable', 'payable']:
-                    logger.info(f"creating {func_name}(...) tx")
+                    logging.info(f"creating {func_name}(...) tx")
                     setattr(self, func_name, self._create_write_method(func_name))
                 elif mutability in ['view', 'pure']:
-                    logger.info(f"creating {func_name}(...) call")
+                    logging.info(f"creating {func_name}(...) call")
                     setattr(self, func_name, self._create_read_method(func_name))
 
     def _create_read_method(self, func_name: str):
@@ -63,13 +63,25 @@ class Contract:
                 modified_args = [arg.address if isinstance(arg, Wallet) else arg for arg in args]
                 return getattr(self.contract.functions, func_name)(*modified_args, **kwargs).call()
             except Exception as e:
-                logger.warning(f"Error calling function '{func_name}': {e}")
+                logging.warning(f"Error calling function '{func_name}': {e}")
                 return None
 
-        # Optionally, add docstrings or additional attributes here
-        read_method.__name__ = func_name
-        read_method.__doc__ = f"Calls the '{func_name}' function of the contract."
+        # add docstrings signature and selector
+        self._amend_method(read_method, func_name)
+
         return read_method
+
+    def _amend_method(self, method, name):
+        method.__name__ = name
+        method.__doc__ = f"Calls the '{name}' contract function."
+
+        signature = getattr(self.contract.functions, name).signature
+        method.signature = signature
+        method.argument_names = getattr(self.contract.functions, name).argument_names
+        method.inputs = getattr(self.contract.functions, name).abi['inputs']
+        method.outputs = getattr(self.contract.functions, name).abi['outputs']
+        method.selector = Web3.keccak(text=signature)[:4]
+        method.selector_hex = method.selector.hex()
 
     def _get_tx_params(self, args:tuple) -> Dict[str, Any]:
         if len(args) == 0:
@@ -95,30 +107,23 @@ class Contract:
 
             try:
                 wallet = tx_params['from']
-                logger.info(f"Sending transaction for function '{func_name}' with wallet: {wallet.address}")
 
                 # create tx properties
                 chain_id = self.w3.eth.chain_id
                 gas = tx_params.get('gas', self.GAS)
                 gas_price = tx_params.get('gasPrice', self.w3.eth.gas_price)
-                gas_limit = tx_params.get('gasLimit', None)
                 nonce = self.w3.eth.get_transaction_count(wallet.address)
 
                 # transform wallet args to addresses (str)
                 modified_args = [arg.address if isinstance(arg, Wallet) else arg for arg in function_args]
 
-                options = {
+                # create tx
+                txn = getattr(self.contract.functions, func_name)(*modified_args).build_transaction({
                     'chainId': chain_id,
                     'gas': gas,
                     'gasPrice': gas_price,
                     'nonce': nonce,
-                }
-
-                if gas_limit:
-                    options['gas'] = gas_limit
-
-                # create tx
-                txn = getattr(self.contract.functions, func_name)(*modified_args).build_transaction(options)
+                })
 
                 # sign tx
                 private_key = bytes(wallet.account.key)
@@ -126,7 +131,7 @@ class Contract:
 
                 # send signed transaction
                 tx_hash = self.w3.eth.send_raw_transaction(signed_txn.raw_transaction)
-                logger.info(f"Transaction sent: {tx_hash.hex()}")
+                logging.info(f"Transaction sent: {tx_hash.hex()}")
 
                 if 'timeout' not in tx_params:
                     timeout = self.TX_TIMEOUT_SECONDS
@@ -136,25 +141,23 @@ class Contract:
                 try:
                     receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
                 except TimeExhausted:
-                    logger.warning(f"Transaction timeout after {timeout} seconds.")
+                    logging.warning(f"Transaction timeout after {timeout} seconds.")
                     return tx_hash.hex()
 
                 if receipt['status'] == 1:
-                    logger.info(f"Transaction successful: {receipt}")
+                    logging.info(f"Transaction successful: {receipt}")
                 else:
-                    logger.warning(f"Transaction failed: {receipt}")
+                    logging.warning(f"Transaction failed: {receipt}")
 
                 return tx_hash.hex()
 
             except Exception as e:
-                logger.warning(f"Error sending transaction for function '{func_name}': {e}")
-                if 'tx_hash' in locals():
-                    logger.warning(f"Transaction hash: {tx_hash.hex()}")
-                    return tx_hash.hex()
-                return None
+                logging.warning(f"Error sending transaction for function '{func_name}': {e}")
+                return tx_hash.hex()
 
-        write_method.__name__ = func_name
-        write_method.__doc__ = f"Sends a transaction to the '{func_name}' function of the contract."
+        # add docstrings signature and selector
+        self._amend_method(write_method, func_name)
+
         return write_method
 
     def _load_abi(self, contract:str, out_path:str) -> Dict[str, Any]:

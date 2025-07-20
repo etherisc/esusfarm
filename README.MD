@@ -366,8 +366,8 @@ forge script script/MockSetup.s.sol --fork-url http://127.0.0.1:8545 --broadcast
 
 ```shell
 cd app
-eval $(echo export $(grep MNEMONIC .env))
-eval $(echo export $(grep CONTRACT_ADDRESS .env))
+eval $(echo export $(grep PRODUCT_CONTRACT_ADDRESS .env))
+eval $(echo export $(grep OPERATOR_WALLET_MNEMONIC .env))
 uv run python
 ```
 
@@ -377,6 +377,7 @@ Follow the steps in the python shell below.
 import os
 
 from web3 import Web3
+from web3utils.chain import Chain
 from web3utils.contract import Contract
 from web3utils.wallet import Wallet
 
@@ -385,8 +386,8 @@ w3_uri = "http://127.0.0.1:8545"
 w3 = Web3(Web3.HTTPProvider(w3_uri))
 
 # create account using the env variable mnemonic
-w = Wallet.from_mnemonic(os.getenv('ETH_MNEMONIC'))
-operator = Wallet.from_mnemonic(os.getenv('OPERATOR_WALLET_MNEMONIC'))
+w = Wallet.from_mnemonic(os.getenv('ETH_MNEMONIC'), w3=w3)
+operator = Wallet.from_mnemonic(os.getenv('OPERATOR_WALLET_MNEMONIC'), w3=w3o)
 
 # send 1 eth to operator
 w.transfer(w3, operator.address, 1 * 10**18)
