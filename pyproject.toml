@@ -16,5 +16,5 @@ dependencies = [
     "pymongo>=4.10.1",
     "python-dotenv>=1.0.1",
     "uvicorn>=0.34.0",
-    "web3>=7.6.0",
+    "web3>=7.15.0",
 ]
