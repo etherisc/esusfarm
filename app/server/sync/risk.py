@@ -38,25 +38,33 @@ def sync_risk_onchain(risk: RiskOut, force: bool = False) -> str:
     season_end_at = int(
         (datetime.fromisoformat(config.startOfSeason) + timedelta(days=config.seasonDays)).timestamp())
 
+    try:
+        product.createCrop(crop, {"from": operator})
+    except Exception as err:
+        logger.info(f"createCrop {risk.crop} skipped or exists: {err}")
+
     tx = product.createRisk(id, season_id, location_id, crop, season_end_at, {'from': operator})
     logger.info(f"tx {tx} risk {risk.id} season {config.id} ({config.name}) location {location.id} ({location.latitude}/{location.longitude}) crop {risk.crop} created")
 
     # update risk with tx and risk id
     risk.tx = tx
-    risk.risk_id = get_risk_id(product.w3, tx)
+    risk.risk_id = get_risk_id(product.w3, tx, id)
     update_in_collection(risk, RiskOut)
+
+    payout = risk.finalPayout if risk.finalPayout > 0 else max(risk.payout, 0.01)
+    risk.finalPayout = payout
+    update_payout_factor_onchain(risk)
 
     return tx
 
 
-def get_risk_id(w3:Web3, tx:str) -> str:
-    receipt = w3.eth.wait_for_transaction_receipt(tx)
-    logs = receipt['logs']
-    logger.debug(f"risk {id} creation logs {logs}")
-
-    log = [log for log in logs if log['address'].lower() == riskSet.address.lower()][0]
-    logger.info(f"risk {id} id log {log}")
-    return f"0x{riskSet.contract.events.LogRiskSetRiskAdded.process_log(log).args.riskId.hex()}"
+def get_risk_id(w3: Web3, tx: str, risk_str_id: str) -> str:
+    w3.eth.wait_for_transaction_receipt(tx)
+    onchain_id = product.contract.functions.getRiskId(product.toStr(risk_str_id)).call()
+    if hasattr(onchain_id, "hex"):
+        h = onchain_id.hex()
+        return h if h.startswith("0x") else f"0x{h}"
+    return str(onchain_id)
 
 
 def update_payout_factor_onchain(risk: RiskOut) -> str:
@@ -66,7 +74,7 @@ def update_payout_factor_onchain(risk: RiskOut) -> str:
     
     risk_id = risk.risk_id
     if not risk.risk_id:
-        risk_id = get_risk_id(product.w3, risk.tx)
+        risk_id = get_risk_id(product.w3, risk.tx, risk.id)
     
     payout_factor = to_u_fixed(risk.finalPayout)
     logger.info(f"updating risk {risk.id} payout factor to {risk.finalPayout} ({payout_factor}) onchain")

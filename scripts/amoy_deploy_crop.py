@@ -437,7 +437,19 @@ def main() -> None:
         str(BUNDLE_STAKE),
     )
     cast_send(mnemonic, crop_pool, "createBundle(uint96)", str(BUNDLE_STAKE))
-    bundle_nft = ""
+    bundle_nft = os.getenv("DEFAULT_BUNDLE_NFT_ID") or ""
+    try:
+        if not bundle_nft:
+            bundle_nft = "398000205"
+        cast_send(
+            mnemonic,
+            crop_product,
+            "setDefaultBundle(uint96)",
+            bundle_nft,
+        )
+        print("default bundle", bundle_nft)
+    except RuntimeError as exc:
+        print("WARN: setDefaultBundle skipped:", str(exc)[-200:])
     print("bundle created (stake)", BUNDLE_STAKE)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
