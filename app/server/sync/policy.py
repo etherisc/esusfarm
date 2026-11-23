@@ -32,8 +32,11 @@ def sync_policy_onchain(policy: PolicyOut, force: bool = False):
 
     # execute transaction
     policy_holder = person.wallet
-    risk_id_str = product.toStr(risk.id)
-    risk_id = product.getRiskId(risk_id_str)
+    if risk.risk_id:
+        risk_id = bytes.fromhex(risk.risk_id[2:] if risk.risk_id.startswith("0x") else risk.risk_id)
+    else:
+        risk_id_str = product.toStr(risk.id)
+        risk_id = product.getRiskId(risk_id_str)
     subscription_date = datetime.fromisoformat(policy.subscriptionDate)
     activate_at = int(subscription_date.timestamp())
     sum_insured = major_to_base_units(policy.sum_insured_decimal)
@@ -49,11 +52,23 @@ def sync_policy_onchain(policy: PolicyOut, force: bool = False):
 
     # update policy with policy nft
     receipt = product.w3.eth.wait_for_transaction_receipt(tx)
-    logs = receipt['logs']
+    if receipt["status"] != 1:
+        raise RuntimeError(f"createPolicy reverted: {tx}")
+    logs = receipt["logs"]
     logger.debug(f"policy {policy.id} transaction logs {logs}")
 
-    log = [log for log in logs if log['address'].lower() == product.address.lower()][0]
-    logger.info(f"policy {policy.id} policy nft log {log}")
-
-    policy.nft = product.contract.events.LogCropPolicyCreated.process_log(log).args.policyNftId
+    policy_nft_id = None
+    for log in logs:
+        if log["address"].lower() != product.address.lower():
+            continue
+        try:
+            policy_nft_id = product.contract.events.LogCropPolicyCreated().process_log(
+                log
+            ).args.policyNftId
+            break
+        except Exception:
+            continue
+    if policy_nft_id is None:
+        raise RuntimeError(f"LogCropPolicyCreated not found in tx {tx}")
+    policy.nft = policy_nft_id
     update_in_collection(policy, PolicyOut)

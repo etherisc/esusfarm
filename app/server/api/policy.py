@@ -32,6 +32,9 @@ async def create_policy(policy: PolicyIn) -> PolicyOut:
         lambda model: model.idempotency_payload(),
     )
     if existing is not None:
+        if not existing.tx:
+            sync_policy_onchain(existing)
+            return find_in_collection(existing.id, PolicyOut)
         return existing
     created = create_in_collection(policy, PolicyOut)
     sync_policy_onchain(created)

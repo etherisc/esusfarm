@@ -32,6 +32,16 @@ The stock `lib/gif-next/scripts/deploy_crop_components.ts` targets the **example
 - Port that script to compile `src/crop` via a small Hardhat project in this repo, **or**
 - Temporarily align the deploy script constructor args and `bundleLifetimeDays` (e.g. `180` days) when forking the TS script.
 
+## Fast path: Forge script (this repo)
+
+```bash
+cp .env.deploy.local.example .env.deploy.local   # or auto-filled once from Dokku
+chmod +x scripts/amoy_deploy.sh
+SKIP_FORGE_BUILD=1 bash scripts/amoy_deploy.sh     # uses deployments/polygonAmoy/resume_*.env when present
+```
+
+Mnemonic in `.env.deploy.local` (gitignored) avoids SSH approval prompts. Token-registry txs use signer index **0**; product/pool use index **2**.
+
 ## Suggested Hardhat flow (gif-next)
 
 ```bash

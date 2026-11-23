@@ -1,0 +1,20 @@
+{
+  "chainId": 80002,
+  "instance": "0x193491245A42d336ae5Fcb2d622d386041498a22",
+  "registry": "0x7c19A25EF52c4E25Eb793d53B18F1811cE947455",
+  "instanceNftId": "198000205",
+  "accountingToken": "0x94671ab08d5940Da416168Fb7BD7646ed614059D",
+  "locationLib": "0x574faa60193b5EB93E4905E60d66B09F235672C7",
+  "cropProductAuthorization": "0x241B2Cb246168f9910A6E832a72C90CA88865635",
+  "cropProduct": "0x20b1c9F88a7AaA4f7457e6f5aCAF05033e13229C",
+  "productNftId": "378000205",
+  "cropPoolAuthorization": "0xCB71C53904C8823Cf9a9dB79D99bf2e4c389ce34",
+  "cropPool": "0xAf64BA9DC3a90eca2d253dd6649064b01CFCE599",
+  "poolNftId": "388000205",
+  "bundleNftId": "pending-query",
+  "bundleStakeTx": "created",
+  "tokenActiveRelease3": true,
+  "bundleLifetimeDays": 180,
+  "bundleStake": 1000000000000,
+  "deployer": "0xad8308964bcB8BfaCa77A625478D4D4E683CD433"
+}

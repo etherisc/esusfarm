@@ -18,7 +18,10 @@ logger = get_logger()
 def sync_risk_onchain(risk: RiskOut, force: bool = False) -> str:
     if not force and risk.tx:
         logger.info(f"risk {risk.id} already synched onchain (tx: {risk.tx})")
-        return
+        if not risk.risk_id:
+            risk.risk_id = get_risk_id(product.w3, risk.tx, risk.id)
+        ensure_risk_payout_defined(risk)
+        return risk.tx
 
     logger.info(f"synching risk {risk.id} onchain")
 
@@ -38,25 +41,51 @@ def sync_risk_onchain(risk: RiskOut, force: bool = False) -> str:
     season_end_at = int(
         (datetime.fromisoformat(config.startOfSeason) + timedelta(days=config.seasonDays)).timestamp())
 
+    try:
+        product.createCrop(crop, {"from": operator})
+    except Exception as err:
+        logger.info(f"createCrop {risk.crop} skipped or exists: {err}")
+
     tx = product.createRisk(id, season_id, location_id, crop, season_end_at, {'from': operator})
     logger.info(f"tx {tx} risk {risk.id} season {config.id} ({config.name}) location {location.id} ({location.latitude}/{location.longitude}) crop {risk.crop} created")
 
     # update risk with tx and risk id
     risk.tx = tx
-    risk.risk_id = get_risk_id(product.w3, tx)
+    risk.risk_id = get_risk_id(product.w3, tx, risk.id)
     update_in_collection(risk, RiskOut)
+
+    ensure_risk_payout_defined(risk)
 
     return tx
 
 
-def get_risk_id(w3:Web3, tx:str) -> str:
-    receipt = w3.eth.wait_for_transaction_receipt(tx)
-    logs = receipt['logs']
-    logger.debug(f"risk {id} creation logs {logs}")
+def ensure_risk_payout_defined(risk: RiskOut) -> None:
+    """Set payout on-chain when missing; persist finalPayout in Mongo."""
+    if not risk.tx:
+        return
+    if not risk.risk_id:
+        risk.risk_id = get_risk_id(product.w3, risk.tx, risk.id)
+    payout = risk.finalPayout if risk.finalPayout > 0 else max(risk.payout, 0.01)
+    risk.finalPayout = payout
+    risk_id_bytes = bytes.fromhex(
+        risk.risk_id[2:] if risk.risk_id.startswith("0x") else risk.risk_id
+    )
+    onchain = product.getRisk(risk_id_bytes)
+    if onchain and onchain[0] and onchain[1][-1]:
+        update_in_collection(risk, RiskOut)
+        return
+    update_payout_factor_onchain(risk)
+    update_in_collection(risk, RiskOut)
 
-    log = [log for log in logs if log['address'].lower() == riskSet.address.lower()][0]
-    logger.info(f"risk {id} id log {log}")
-    return f"0x{riskSet.contract.events.LogRiskSetRiskAdded.process_log(log).args.riskId.hex()}"
+
+def get_risk_id(w3: Web3, tx: str, risk_nanoid: str) -> str:
+    w3.eth.wait_for_transaction_receipt(tx)
+    str_key = product.toStr(risk_nanoid)
+    onchain_id = product.getRiskId(str_key)
+    if hasattr(onchain_id, "hex"):
+        h = onchain_id.hex()
+        return h if h.startswith("0x") else f"0x{h}"
+    return str(onchain_id)
 
 
 def update_payout_factor_onchain(risk: RiskOut) -> str:
@@ -66,7 +95,7 @@ def update_payout_factor_onchain(risk: RiskOut) -> str:
     
     risk_id = risk.risk_id
     if not risk.risk_id:
-        risk_id = get_risk_id(product.w3, risk.tx)
+        risk_id = get_risk_id(product.w3, risk.tx, risk.id)
     
     payout_factor = to_u_fixed(risk.finalPayout)
     logger.info(f"updating risk {risk.id} payout factor to {risk.finalPayout} ({payout_factor}) onchain")

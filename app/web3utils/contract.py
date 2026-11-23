@@ -115,12 +115,13 @@ class Contract:
             tx_params = self._get_tx_params(args)
             function_args = args[:-1]
 
+            tx_hash = None
             try:
                 wallet = tx_params['from']
 
                 # create tx properties
                 chain_id = self.w3.eth.chain_id
-                gas = tx_params.get('gas', self.GAS)
+                gas = tx_params.get('gas', tx_params.get('gasLimit', self.GAS))
                 gas_price = tx_params.get('gasPrice', self.w3.eth.gas_price)
                 nonce = self.w3.eth.get_transaction_count(wallet.address)
 
@@ -163,7 +164,9 @@ class Contract:
 
             except Exception as e:
                 logging.warning(f"Error sending transaction for function '{func_name}': {e}")
-                return tx_hash.hex()
+                if tx_hash is not None:
+                    return tx_hash.hex()
+                raise
 
         # add docstrings signature and selector
         self._amend_method(write_method, func_name)
