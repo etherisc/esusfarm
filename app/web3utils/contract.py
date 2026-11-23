@@ -115,6 +115,7 @@ class Contract:
             tx_params = self._get_tx_params(args)
             function_args = args[:-1]
 
+            tx_hash = None
             try:
                 wallet = tx_params['from']
 
@@ -163,7 +164,9 @@ class Contract:
 
             except Exception as e:
                 logging.warning(f"Error sending transaction for function '{func_name}': {e}")
-                return tx_hash.hex()
+                if tx_hash is not None:
+                    return tx_hash.hex()
+                raise
 
         # add docstrings signature and selector
         self._amend_method(write_method, func_name)
