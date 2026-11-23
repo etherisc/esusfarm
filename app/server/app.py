@@ -28,7 +28,13 @@ def ensure_mongo_indexes() -> None:
     for name in ("Person", "Policy"):
         if name not in db.list_collection_names():
             db.create_collection(name)
-        db[name].create_index("externalId", unique=True, sparse=True)
+        db[name].create_index(
+            "externalId",
+            unique=True,
+            partialFilterExpression={
+                "externalId": {"$exists": True, "$type": "string", "$gt": ""},
+            },
+        )
     logger.info("mongo idempotency indexes ensured")
 
 
