@@ -18,6 +18,23 @@ Host: `162.55.209.69` (same for both apps).
 - Adapted contracts built from this repo (`src/crop/`, `lib/gif-next` at `v3.0.0-beta.3`).
 - Explore Amoy from operator `0xad8308964bcB8BfaCa77A625478D4D4E683CD433` to locate existing GIF v3 instance/registry.
 
+## Legacy Amoy references (2024-12-23 deploy)
+
+| Item | Value |
+|---|---|
+| Chain | Polygon Amoy (80002) |
+| Operator | `0xad8308964bcB8BfaCa77A625478D4D4E683CD433` |
+| CropProduct (legacy) | `0x6d39A6458ABa448d3C5cbC00f2135352197e6091` |
+| Bundle id (expired) | `228000205` (90-day bundle; do not reuse) |
+
+Discover current instance/registry:
+
+```bash
+RPC_NODE_URL=<amoy-rpc> uv run python scripts/amoy_discover.py
+```
+
+Paste outputs into the table below when confirmed.
+
 ## ESF-1.03 – Amoy (test) – checklist
 
 _To be filled as deploy is executed._

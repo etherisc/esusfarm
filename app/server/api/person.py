@@ -3,6 +3,7 @@ from fastapi.routing import APIRouter
 
 from server.config import settings
 from server.model.person import PersonIn, PersonOut
+from server.idempotency import PERSON_COMPARE, assert_idempotent_match
 from server.mongo import count_documents, create_in_collection, find_in_collection, get_list_of_models_in_collection, get_list_of_dicts_in_collection
 from util.csv import write_csv_temp_file, get_field_list
 from util.logging import get_logger
@@ -20,6 +21,17 @@ persons = {}
 
 @router.post("/", response_model=PersonOut, response_description="Person data created")
 async def create_person(person: PersonIn) -> PersonOut:
+    if person.externalId:
+        incoming = {k: getattr(person, k) for k in PERSON_COMPARE}
+        existing = assert_idempotent_match(
+            PersonOut,
+            person.externalId,
+            incoming,
+            lambda model: {k: getattr(model, k) for k in PERSON_COMPARE},
+        )
+        if existing is not None:
+            return existing
+
     # create unique wallet address for person
     persons = count_documents(PersonOut)
     wallet_index = PERSON_BASE_INDEX + persons

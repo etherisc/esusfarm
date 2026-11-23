@@ -13,6 +13,14 @@ class Settings(BaseSettings):
 
     # policy validation
     POLICY_MAX_AMOUNT_UGX: Decimal = Decimal("5000000")
+    POLICY_MAX_AMOUNT_ZAR: Decimal = Decimal("5000000")
+    POLICY_MAX_AMOUNT_NGN: Decimal = Decimal("5000000")
+    POLICY_MAX_AMOUNT_USD: Decimal = Decimal("5000000")
+    POLICY_MAX_AMOUNT_SZL: Decimal = Decimal("5000000")
+
+    def policy_ceiling(self, currency: str) -> Decimal:
+        key = f"POLICY_MAX_AMOUNT_{currency.upper()}"
+        return getattr(self, key, self.POLICY_MAX_AMOUNT_UGX)
 
     # list of valid crops
     VALID_CROPS: str = "coffee,maize,beans,potatoes"

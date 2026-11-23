@@ -12,12 +12,24 @@ from server.api.claim import router as router_claim
 from server.api.payout import router as router_payout
 from server.api.health import router as router_health
 from server.config import settings
+from server.mongo import get_mongo
 from server.error import NotFoundError
 from server.utils import create_app, include_router
 from util.logging import get_logger
 
 logger = get_logger()
 app = create_app(settings)
+
+
+@app.on_event("startup")
+def ensure_mongo_indexes() -> None:
+    client = get_mongo()
+    db = client.get_default_database()
+    for name in ("Person", "Policy"):
+        if name not in db.list_collection_names():
+            db.create_collection(name)
+        db[name].create_index("externalId", unique=True, sparse=True)
+    logger.info("mongo idempotency indexes ensured")
 
 
 @app.middleware("http")
