@@ -5,10 +5,10 @@
 
 ## Preconditions
 
-- [ ] `API_JWT_SECRET` set on `esusfarm-api-test`
-- [ ] Bearer JWT issued to test team (secure channel)
-- [ ] Adapted contracts deployed on Amoy; `PRODUCT_CONTRACT_ADDRESS` / RPC set
-- [ ] Test Mongo backup taken if duplicate cleanup ran
+- [x] `API_JWT_SECRET` set on `esusfarm-api-test`
+- [x] Bearer JWT issued to test team (secure channel)
+- [ ] Adapted contracts deployed on Amoy; `PRODUCT_CONTRACT_ADDRESS` / RPC set (RPC public; product still **legacy** `0x6d39…`)
+- [x] Test Mongo duplicate cleanup ran (2026-11-23; formal backup path: `mongo_backup_and_dedupe.py`)
 
 ## 1. Health (no auth)
 

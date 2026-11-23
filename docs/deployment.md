@@ -52,9 +52,18 @@ Paste **new** product/pool addresses into the table below when deployed.
 
 ## ESF-1.03 – Amoy (test) – checklist
 
-_To be filled as deploy is executed._
+**Discovered 2026-11-23** (legacy product; adapted contracts not deployed yet):
 
-1. [ ] Record GIF instance and registry addresses (reuse existing Amoy GIF v3).
+| Item | Value |
+|---|---|
+| GIF instance | `0x193491245A42d336ae5Fcb2d622d386041498a22` |
+| Registry | `0x7c19A25EF52c4E25Eb793d53B18F1811cE947455` |
+| Legacy crop product | `0x6d39A6458ABa448d3C5cbC00f2135352197e6091` |
+| Legacy accounting token | `0x612ef62560Ceb3b114fC302f7F54F4D493371D6B` |
+| Product NFT id | `208000205` |
+| Expired bundle (do not reuse) | `228000205` |
+
+1. [x] Record GIF instance and registry addresses (reuse existing Amoy GIF v3).
 2. [ ] Deploy `AccountingToken` (“eSusFarm UGX”, 6 decimals).
 3. [ ] Deploy `CropProduct` + `CropPool` (+ authorization contracts) from this repo; link to instance.
 4. [ ] Create bundle with configured `bundleLifetimeDays` and capacity; fund with Accounting Tokens only.
@@ -75,18 +84,16 @@ _To be filled as deploy is executed._
 
 ## Dokku test cutover
 
-Requires SSH key for `dokku@162.55.209.69` (this environment has none).
+**SSH:** `~/.ssh/config` hosts `esusfarm-dokku` (`dokku@`, key `~/.ssh/archive/dokku_deploy`) and `esusfarm-maint` (`maintenance@`).
 
 ```bash
-git push dokku-test main:main
-dokku config:set esusfarm-api-test API_JWT_SECRET=<from issue_api_jwt.py> RPC_NODE_URL=... PRODUCT_CONTRACT_ADDRESS=...
+git push esusfarm-dokku:esusfarm-api-test main:main
+# or: git push dokku-test main:main
+ssh esusfarm-maint dokku config:set esusfarm-api-test API_JWT_SECRET=<from issue_api_jwt.py>
+ssh esusfarm-maint dokku config:set esusfarm-api-test RPC_NODE_URL=https://polygon-amoy-bor-rpc.publicnode.com
 ```
 
-After merge, run on test host:
-
-```bash
-uv run python scripts/mongo_backup_and_dedupe.py --dry-run   # then without --dry-run
-```
+**Test Mongo** (URI is only reachable from the server): backup/dedupe via `scripts/mongo_backup_and_dedupe.py`, or one-off cleanup with `scripts/mongo_fix_test_external_id.py` inside the app container (`dokku run --no-tty esusfarm-api-test uv run python …`).
 
 ## API secrets (test)
 

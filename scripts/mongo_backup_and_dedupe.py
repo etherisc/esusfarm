@@ -24,18 +24,23 @@ def backup_collection(db, name: str, out_dir: Path) -> None:
     print(f"backup {name}: {len(docs)} docs -> {path}")
 
 
+def unset_blank_external_ids(db, name: str, dry_run: bool) -> int:
+    n = db[name].count_documents({"externalId": ""})
+    if dry_run or n == 0:
+        return n
+    return db[name].update_many({"externalId": ""}, {"$unset": {"externalId": ""}}).modified_count
+
+
 def dedupe(db, name: str, dry_run: bool) -> list[dict]:
     removed: list[dict] = []
     groups: dict[str, list] = defaultdict(list)
-    for doc in db[name].find({"externalId": {"$exists": True, "$ne": None}}):
-        eid = doc.get("externalId")
-        if eid:
-            groups[eid].append(doc)
+    for doc in db[name].find({"externalId": {"$exists": True, "$type": "string", "$gt": ""}}):
+        groups[str(doc["externalId"])].append(doc)
 
     for eid, docs in groups.items():
         if len(docs) < 2:
             continue
-        docs.sort(key=lambda d: d.get("id", ""))
+        docs.sort(key=lambda d: d.get("id") or str(d.get("_id", "")))
         keep, drop = docs[0], docs[1:]
         for doc in drop:
             removed.append(
@@ -47,7 +52,8 @@ def dedupe(db, name: str, dry_run: bool) -> list[dict]:
                 }
             )
             if not dry_run:
-                db[name].delete_one({"id": doc["id"]})
+                key = {"id": doc["id"]} if doc.get("id") else {"_id": doc["_id"]}
+                db[name].delete_one(key)
 
     return removed
 
@@ -77,6 +83,9 @@ def main() -> None:
     report: list[dict] = []
     for coll in ("Person", "Policy"):
         if coll in db.list_collection_names():
+            blank = unset_blank_external_ids(db, coll, args.dry_run)
+            if blank:
+                print(f"{coll}: unset blank externalId on {blank} docs" + (" (dry-run count)" if args.dry_run else ""))
             report.extend(dedupe(db, coll, args.dry_run))
 
     report_path = backup_dir / "dedupe_report.json"
