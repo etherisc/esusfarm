@@ -31,7 +31,8 @@ PER_ID=$(curl -sS -X POST "$BASE/person/" -H "$AUTH" -H 'Content-Type: applicati
   -d "{\"locationId\":\"$LOC_ID\",\"externalId\":\"$EXT-p\",\"firstName\":\"A\",\"lastName\":\"B\",\"gender\":\"f\",\"mobilePhone\":\"+256700000099\"}" \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
 
-BODY="{\"personId\":\"$PER_ID\",\"riskId\":\"$RISK_ID\",\"externalId\":\"$EXT\",\"subscriptionDate\":\"2026-05-10\",\"currency\":\"USD\",\"sumInsuredAmount\":600,\"premiumAmount\":2.01}"
+# On-chain MIN_PREMIUM is 10 LCA (6 decimals) → major units >= 10
+BODY="{\"personId\":\"$PER_ID\",\"riskId\":\"$RISK_ID\",\"externalId\":\"$EXT\",\"subscriptionDate\":\"2026-05-10\",\"currency\":\"USD\",\"sumInsuredAmount\":200,\"premiumAmount\":10.01}"
 curl -sS -w "\nHTTP:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' -d "$BODY"
 curl -sS -w "\nrepeat:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' -d "$BODY"
 curl -sS -w "\nconflict:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' \
