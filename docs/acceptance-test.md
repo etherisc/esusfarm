@@ -1,13 +1,13 @@
 # eSusFarm – Acceptance test script
 
 **Target:** `https://api-test.esusfarm.etherisc.com`  
-**Status:** Draft – fill results after `api-test` cutover.
+**Status:** In progress – `api-test` on adapted Amoy product (`0x20b1…`, head `4888067` on Dokku).
 
 ## Preconditions
 
 - [x] `API_JWT_SECRET` set on `esusfarm-api-test`
 - [x] Bearer JWT issued to test team (secure channel)
-- [ ] Adapted contracts deployed on Amoy; `PRODUCT_CONTRACT_ADDRESS` / RPC set (RPC public; product still **legacy** `0x6d39…`)
+- [x] Adapted contracts deployed on Amoy; `PRODUCT_CONTRACT_ADDRESS` / `TOKEN_CONTRACT_ADDRESS` set on Dokku (`0x20b1…` / `0x9467…`)
 - [x] Test Mongo duplicate cleanup ran (2026-11-23; formal backup path: `mongo_backup_and_dedupe.py`)
 
 ## 1. Health (no auth)
@@ -28,7 +28,12 @@ Expect: `401`.
 
 ## 3. Policy end-to-end (authenticated)
 
-_TBD: curl templates after deploy addresses and sample master data ids._
+```bash
+chmod +x scripts/acceptance_api_test.sh
+./scripts/acceptance_api_test.sh
+```
+
+Or manual curl chain: `POST /location` → `/config` → `/risk` → `/person` → `/policy` with `Authorization: Bearer …` (issue via `scripts/issue_api_jwt.py` + Dokku `API_JWT_SECRET`).
 
 - Create person / risk / policy with `Authorization: Bearer …`
 - Response includes `id`, `nft`, `tx`

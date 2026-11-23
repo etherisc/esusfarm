@@ -48,7 +48,7 @@ def sync_risk_onchain(risk: RiskOut, force: bool = False) -> str:
 
     # update risk with tx and risk id
     risk.tx = tx
-    risk.risk_id = get_risk_id(product.w3, tx, id)
+    risk.risk_id = get_risk_id(product.w3, tx, risk.id)
     update_in_collection(risk, RiskOut)
 
     payout = risk.finalPayout if risk.finalPayout > 0 else max(risk.payout, 0.01)
@@ -58,9 +58,10 @@ def sync_risk_onchain(risk: RiskOut, force: bool = False) -> str:
     return tx
 
 
-def get_risk_id(w3: Web3, tx: str, risk_str_id: str) -> str:
+def get_risk_id(w3: Web3, tx: str, risk_nanoid: str) -> str:
     w3.eth.wait_for_transaction_receipt(tx)
-    onchain_id = product.contract.functions.getRiskId(product.toStr(risk_str_id)).call()
+    str_key = product.toStr(risk_nanoid)
+    onchain_id = product.getRiskId(str_key)
     if hasattr(onchain_id, "hex"):
         h = onchain_id.hex()
         return h if h.startswith("0x") else f"0x{h}"
