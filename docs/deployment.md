@@ -63,9 +63,20 @@ Paste **new** product/pool addresses into the table below when deployed.
 | Product NFT id | `208000205` |
 | Expired bundle (do not reuse) | `228000205` |
 
+**Adapted deploy (2026-11-23, suffix `cdd740`)** — see `deployments/polygonAmoy/crop_deploy_cdd740.json`:
+
+| Item | Value |
+|---|---|
+| Accounting token | `0x94671ab08d5940Da416168Fb7BD7646ed614059D` |
+| Crop product | `0x20b1c9F88a7AaA4f7457e6f5aCAF05033e13229C` |
+| Product NFT id | `378000205` |
+| Crop pool | `0xAf64BA9DC3a90eca2d253dd6649064b01CFCE599` |
+| Pool NFT id | `388000205` |
+| Bundle | created (stake 1e12 units / 1M tokens); NFT id via explorer on pool `388000205` |
+
 1. [x] Record GIF instance and registry addresses (reuse existing Amoy GIF v3).
-2. [ ] Deploy `AccountingToken` (“eSusFarm UGX”, 6 decimals).
-3. [ ] Deploy `CropProduct` + `CropPool` (+ authorization contracts) from this repo; link to instance.
+2. [x] Deploy `AccountingToken` (LCA, 6 decimals).
+3. [x] Deploy `CropProduct` + `CropPool` (+ authorization contracts) from this repo; link to instance.
 4. [ ] Create bundle with configured `bundleLifetimeDays` and capacity; fund with Accounting Tokens only.
 5. [ ] Verify source on Amoy Polygonscan.
 6. [ ] Set Dokku **test** only: `PRODUCT_CONTRACT_ADDRESS`, `TOKEN_CONTRACT_ADDRESS`, `API_JWT_SECRET` (see below).
