@@ -1,13 +1,14 @@
 from copy import deepcopy
 from decimal import Decimal
+from typing import Any
 
-from pydantic import field_validator, Field
+from pydantic import field_validator, Field, model_validator
 
 from server.config import settings
 from server.error import raise_with_log
 from server.mongo import MongoModel
+from util.currency import parse_amount
 from util.date import Date
-from util.money import float_to_decimal
 from util.nanoid import is_valid_nanoid
 
 EXAMPLE_IN = {
@@ -15,13 +16,14 @@ EXAMPLE_IN = {
     "riskId": "t4FcP75uGHHc",
     "externalId": "ABC123",
     "subscriptionDate": "2025-01-01",
-    "sumInsuredAmount": 600000.0,
-    "premiumAmount": 40000.0,
+    "currency": "UGX",
+    "sumInsuredAmount": 600000,
+    "premiumAmount": 40000,
 }
 
 EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
 EXAMPLE_OUT["id"] = "cwNCXQfypiTg"
-EXAMPLE_OUT["nft"] = "2689313703"
+EXAMPLE_OUT["nft"] = 2689313703
 
 
 class PolicyIn(MongoModel):
@@ -29,8 +31,12 @@ class PolicyIn(MongoModel):
     riskId: str
     externalId: str
     subscriptionDate: str
-    sumInsuredAmount: float
-    premiumAmount: float
+    currency: str = Field(default="UGX")
+    sumInsuredAmount: float | str
+    premiumAmount: float | str
+
+    _sum_insured_decimal: Decimal | None = None
+    _premium_decimal: Decimal | None = None
 
     @field_validator('personId', 'riskId')
     @classmethod
@@ -47,27 +53,51 @@ class PolicyIn(MongoModel):
         date = Date.create_from(v)
         return date.to_iso_string()
 
-    @field_validator('sumInsuredAmount', 'premiumAmount')
+    @field_validator('currency')
     @classmethod
-    def monetary_amount_must_be_meaningful(cls, amount: float) -> float:
-        if amount <= 0.0:
-            raise_with_log(ValueError, f"amount {amount} invalid, value must not be 0 or negative")
-        ceiling = settings.POLICY_MAX_AMOUNT_UGX
-        if float_to_decimal(amount) > ceiling:
+    def currency_upper(cls, v: str) -> str:
+        return v.strip().upper()
+
+    @model_validator(mode="after")
+    def validate_amounts(self) -> "PolicyIn":
+        currency = self.currency
+        self._sum_insured_decimal = parse_amount(self.sumInsuredAmount, currency)
+        self._premium_decimal = parse_amount(self.premiumAmount, currency)
+        if self._sum_insured_decimal > settings.policy_ceiling(currency):
             raise_with_log(
                 ValueError,
-                f"amount {amount} invalid, value is larger than maximum amount of {ceiling}",
+                f"sumInsuredAmount exceeds configured ceiling for {currency}",
             )
+        if self._premium_decimal > settings.policy_ceiling(currency):
+            raise_with_log(
+                ValueError,
+                f"premiumAmount exceeds configured ceiling for {currency}",
+            )
+        return self
 
-        return amount
+    @property
+    def sum_insured_decimal(self) -> Decimal:
+        return self._sum_insured_decimal
 
-    @classmethod
-    def sum_insured_as_decimal(cls, amount: float) -> Decimal:
-        return float_to_decimal(amount)
+    @property
+    def premium_decimal(self) -> Decimal:
+        return self._premium_decimal
 
-    @classmethod
-    def premium_as_decimal(cls, amount: float) -> Decimal:
-        return float_to_decimal(amount)
+    def idempotency_payload(self) -> dict[str, Any]:
+        return {
+            "personId": self.personId,
+            "riskId": self.riskId,
+            "subscriptionDate": self.subscriptionDate,
+            "currency": self.currency,
+            "sumInsuredAmount": str(self.sum_insured_decimal),
+            "premiumAmount": str(self.premium_decimal),
+        }
+
+    def toMongoDict(self) -> dict:
+        document = super().toMongoDict()
+        document["sumInsuredAmount"] = float(self.sum_insured_decimal)
+        document["premiumAmount"] = float(self.premium_decimal)
+        return document
 
     class Config:
         json_schema_extra = {

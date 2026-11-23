@@ -7,6 +7,7 @@ from server.model.claim import ClaimOut
 from server.config import settings
 from server.api.util import verify_person_exists, verify_risk_exists
 from server.model.policy import PolicyIn, PolicyOut
+from server.idempotency import assert_idempotent_match
 from server.mongo import create_in_collection, find_in_collection, get_collection_for_class, get_list_of_models_in_collection, get_list_of_dicts_in_collection
 from server.sync.policy import sync_policy_onchain
 
@@ -24,6 +25,14 @@ router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 async def create_policy(policy: PolicyIn) -> PolicyOut:
     verify_person_exists(policy.personId)
     verify_risk_exists(policy.riskId)
+    existing = assert_idempotent_match(
+        PolicyOut,
+        policy.externalId,
+        policy.idempotency_payload(),
+        lambda model: model.idempotency_payload(),
+    )
+    if existing is not None:
+        return existing
     created = create_in_collection(policy, PolicyOut)
     sync_policy_onchain(created)
     return find_in_collection(created.id, PolicyOut)
