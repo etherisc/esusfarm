@@ -25,7 +25,12 @@ Host: `162.55.209.69` (same for both apps).
 | Chain | Polygon Amoy (80002) |
 | Operator | `0xad8308964bcB8BfaCa77A625478D4D4E683CD433` |
 | CropProduct (legacy) | `0x6d39A6458ABa448d3C5cbC00f2135352197e6091` |
+| GIF Instance | `0x193491245A42d336ae5Fcb2d622d386041498a22` |
+| Registry | `0x7c19A25EF52c4E25Eb793d53B18F1811cE947455` |
+| Accounting token (legacy) | `0x612ef62560Ceb3b114fC302f7F54F4D493371D6B` |
+| Product NFT id | `208000205` |
 | Bundle id (expired) | `228000205` (90-day bundle; do not reuse) |
+| Amoy RPC (public) | `https://polygon-amoy-bor-rpc.publicnode.com` |
 
 Discover current instance/registry:
 
@@ -33,7 +38,17 @@ Discover current instance/registry:
 RPC_NODE_URL=<amoy-rpc> uv run python scripts/amoy_discover.py
 ```
 
-Paste outputs into the table below when confirmed.
+### Reuse existing GIF instance
+
+Set when deploying **new** adapted CropProduct/CropPool (Hardhat script in `lib/gif-next/scripts/deploy_crop_components.ts` or future Forge script):
+
+```bash
+export INSTANCE_ADDRESS=0x193491245A42d336ae5Fcb2d622d386041498a22
+export INSTANCE_SERVICE_ADDRESS=<from instance registry / prior deploy notes>
+# deploy adapted contracts from this repo; register product + new pool; create bundle with bundleLifetimeDays
+```
+
+Paste **new** product/pool addresses into the table below when deployed.
 
 ## ESF-1.03 – Amoy (test) – checklist
 
@@ -58,6 +73,21 @@ _To be filled as deploy is executed._
 | Bundle lifetime (days) | |
 | Bundle capacity | |
 
+## Dokku test cutover
+
+Requires SSH key for `dokku@162.55.209.69` (this environment has none).
+
+```bash
+git push dokku-test main:main
+dokku config:set esusfarm-api-test API_JWT_SECRET=<from issue_api_jwt.py> RPC_NODE_URL=... PRODUCT_CONTRACT_ADDRESS=...
+```
+
+After merge, run on test host:
+
+```bash
+uv run python scripts/mongo_backup_and_dedupe.py --dry-run   # then without --dry-run
+```
+
 ## API secrets (test)
 
 | Variable | Purpose |
@@ -66,6 +96,8 @@ _To be filled as deploy is executed._
 | `API_JWT_ALGORITHM` | `HS256` (default). |
 
 JWT is delivered to eSusFarm through a secure channel (not plain email).
+
+See `docs/env.example` for variable names.
 
 ## Local mock deploy (Anvil only)
 

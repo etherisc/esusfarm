@@ -18,16 +18,22 @@ def main() -> None:
         sys.exit("RPC not connected")
     print("chain_id", w3.eth.chain_id)
     print("operator", OPERATOR, "balance_wei", w3.eth.get_balance(OPERATOR))
-    abi = [
+    product_abi = [
         {"inputs": [], "name": "getInstance", "outputs": [{"type": "address"}], "stateMutability": "view", "type": "function"},
         {"inputs": [], "name": "getToken", "outputs": [{"type": "address"}], "stateMutability": "view", "type": "function"},
         {"inputs": [], "name": "getNftId", "outputs": [{"type": "uint96"}], "stateMutability": "view", "type": "function"},
     ]
-    c = w3.eth.contract(address=w3.to_checksum_address(product_addr), abi=abi)
+    c = w3.eth.contract(address=w3.to_checksum_address(product_addr), abi=product_abi)
     print("product", product_addr)
-    print("getInstance", c.functions.getInstance().call())
+    instance = c.functions.getInstance().call()
+    print("getInstance", instance)
     print("getToken", c.functions.getToken().call())
     print("getNftId", c.functions.getNftId().call())
+    instance_abi = [
+        {"inputs": [], "name": "getRegistry", "outputs": [{"type": "address"}], "stateMutability": "view", "type": "function"},
+    ]
+    inst = w3.eth.contract(address=w3.to_checksum_address(instance), abi=instance_abi)
+    print("registry", inst.functions.getRegistry().call())
 
 
 if __name__ == "__main__":
