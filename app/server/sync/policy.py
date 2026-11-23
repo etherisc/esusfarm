@@ -8,8 +8,10 @@ from server.model.policy import PolicyOut
 from server.model.risk import RiskOut
 from server.sync.onchain import operator, product, token
 
+from server.model.policy import PolicyIn
 from server.sync.person import sync_person_onchain
 from server.sync.risk import sync_risk_onchain
+from util.money import major_to_base_units
 
 # setup for module
 logger = get_logger()
@@ -35,8 +37,8 @@ def sync_policy_onchain(policy: PolicyOut, force: bool = False):
     risk_id = product.getRiskId(risk_id_str)
     subscription_date = datetime.fromisoformat(policy.subscriptionDate)
     activate_at = int(subscription_date.timestamp())
-    sum_insured = int(policy.sumInsuredAmount * 10 ** token.decimals())
-    premium = int(policy.premiumAmount * 10 ** token.decimals())
+    sum_insured = major_to_base_units(PolicyIn.sum_insured_as_decimal(policy.sumInsuredAmount))
+    premium = major_to_base_units(PolicyIn.premium_as_decimal(policy.premiumAmount))
 
     logger.info(f"creating policy policy_holder {policy_holder} risk_id {risk_id} activate_at {activate_at} sum_insured {sum_insured} premium {premium}")
     tx = product.createPolicy(policy_holder, risk_id, activate_at, sum_insured, premium, {'from': operator, 'gasLimit': 10000000, 'gasPrice': settings.GAS_PRICE})

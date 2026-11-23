@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {AccountingToken} from "../src/AccountingToken.sol";
+import {AccountingToken} from "../src/mock/AccountingToken.sol";
 
 contract AccountingTokenTest is Test {
     address deployer = makeAddr("deployer");

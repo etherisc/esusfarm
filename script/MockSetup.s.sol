@@ -3,8 +3,8 @@ pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
 
-import {AccountingToken} from "../src/AccountingToken.sol";
-import {CropProduct} from "../src/CropProduct.sol";
+import {AccountingToken} from "../src/mock/AccountingToken.sol";
+import {CropProduct} from "../src/mock/CropProduct.sol";
 
 contract MocksSetupScript is Script {
     AccountingToken public token;
