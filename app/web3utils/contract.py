@@ -75,13 +75,23 @@ class Contract:
         method.__name__ = name
         method.__doc__ = f"Calls the '{name}' contract function."
 
-        signature = getattr(self.contract.functions, name).signature
-        method.signature = signature
-        method.argument_names = getattr(self.contract.functions, name).argument_names
-        method.inputs = getattr(self.contract.functions, name).abi['inputs']
-        method.outputs = getattr(self.contract.functions, name).abi['outputs']
-        method.selector = Web3.keccak(text=signature)[:4]
-        method.selector_hex = method.selector.hex()
+        contract_fn = getattr(self.contract.functions, name)
+        func_abi = contract_fn.abi
+        method.inputs = func_abi.get("inputs", [])
+        method.outputs = func_abi.get("outputs", [])
+
+        try:
+            signature = contract_fn.signature
+            method.signature = signature
+            method.argument_names = contract_fn.argument_names
+            method.selector = Web3.keccak(text=signature)[:4]
+            method.selector_hex = method.selector.hex()
+        except AttributeError:
+            # Some web3 accessors lack .signature (e.g. zero-arg GIF component constants).
+            method.signature = None
+            method.argument_names = [inp.get("name", "") for inp in method.inputs]
+            method.selector = None
+            method.selector_hex = None
 
     def _get_tx_params(self, args:tuple) -> Dict[str, Any]:
         if len(args) == 0:
