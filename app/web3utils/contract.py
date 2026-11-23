@@ -121,7 +121,7 @@ class Contract:
 
                 # create tx properties
                 chain_id = self.w3.eth.chain_id
-                gas = tx_params.get('gas', self.GAS)
+                gas = tx_params.get('gas', tx_params.get('gasLimit', self.GAS))
                 gas_price = tx_params.get('gasPrice', self.w3.eth.gas_price)
                 nonce = self.w3.eth.get_transaction_count(wallet.address)
 
