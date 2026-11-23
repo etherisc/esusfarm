@@ -35,5 +35,6 @@ PER_ID=$(curl -sS -X POST "$BASE/person/" -H "$AUTH" -H 'Content-Type: applicati
 BODY="{\"personId\":\"$PER_ID\",\"riskId\":\"$RISK_ID\",\"externalId\":\"$EXT\",\"subscriptionDate\":\"2026-05-10\",\"currency\":\"USD\",\"sumInsuredAmount\":200,\"premiumAmount\":10.01}"
 curl -sS -w "\nHTTP:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' -d "$BODY"
 curl -sS -w "\nrepeat:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' -d "$BODY"
+CONFLICT_BODY="${BODY/10.01/11.01}"
 curl -sS -w "\nconflict:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' \
-  -d "${BODY/600/700}"
+  -d "$CONFLICT_BODY"

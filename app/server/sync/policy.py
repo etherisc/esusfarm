@@ -32,8 +32,11 @@ def sync_policy_onchain(policy: PolicyOut, force: bool = False):
 
     # execute transaction
     policy_holder = person.wallet
-    risk_id_str = product.toStr(risk.id)
-    risk_id = product.getRiskId(risk_id_str)
+    if risk.risk_id:
+        risk_id = bytes.fromhex(risk.risk_id[2:] if risk.risk_id.startswith("0x") else risk.risk_id)
+    else:
+        risk_id_str = product.toStr(risk.id)
+        risk_id = product.getRiskId(risk_id_str)
     subscription_date = datetime.fromisoformat(policy.subscriptionDate)
     activate_at = int(subscription_date.timestamp())
     sum_insured = major_to_base_units(policy.sum_insured_decimal)

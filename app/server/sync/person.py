@@ -11,9 +11,30 @@ from server.sync.onchain import token, operator, product, w3
 # setup for module
 logger = get_logger()
 
+def _ensure_token_handler_allowance(person: PersonOut) -> None:
+    product_token_handler = product.getTokenHandler()
+    allowance = token.allowance(person.wallet, product_token_handler)
+    if allowance is not None and allowance >= settings.FARMER_FUNDING_AMOUNT:
+        return
+    logger.info(
+        f"person {person.id} allowance {allowance} below {settings.FARMER_FUNDING_AMOUNT}; re-approving"
+    )
+    farmer_wallet = Wallet.from_mnemonic(settings.FARMER_WALLET_MNEMONIC, index=person.walletIndex)
+    farmer_wallet_balance = w3.eth.get_balance(farmer_wallet.address)
+    if farmer_wallet_balance < settings.FARMER_ETH_FUNDING_AMOUNT // 2:
+        send_eth(operator, person.wallet, settings.FARMER_ETH_FUNDING_AMOUNT, settings.GAS_PRICE)
+    tx2 = token.approve(
+        product_token_handler,
+        settings.FARMER_FUNDING_AMOUNT,
+        {"from": farmer_wallet, "gasPrice": settings.GAS_PRICE, "gasLimit": 50000},
+    )
+    logger.info(f"tx {tx2} re-approval of {settings.FARMER_FUNDING_AMOUNT} token to {product_token_handler}")
+
+
 def sync_person_onchain(person: PersonOut, force: bool = False):
     if not force and person.tx:
-        logger.info(f"person {person.id} already synched onchain (tx: {person.tx})") 
+        logger.info(f"person {person.id} already synched onchain (tx: {person.tx})")
+        _ensure_token_handler_allowance(person)
         return
 
     logger.info(f"synching person {person.id} onchain")
@@ -46,4 +67,5 @@ def sync_person_onchain(person: PersonOut, force: bool = False):
         # and approve token handler for policy payment
         tx2 = token.approve(product_token_handler, settings.FARMER_FUNDING_AMOUNT, {'from': farmer_wallet, 'gasPrice': settings.GAS_PRICE, 'gasLimit': 50000})
         logger.info(f"tx {tx2} approval of {funding} token to {product_token_handler}")
-        
+    else:
+        _ensure_token_handler_allowance(person)

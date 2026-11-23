@@ -18,7 +18,10 @@ logger = get_logger()
 def sync_risk_onchain(risk: RiskOut, force: bool = False) -> str:
     if not force and risk.tx:
         logger.info(f"risk {risk.id} already synched onchain (tx: {risk.tx})")
-        return
+        if not risk.risk_id:
+            risk.risk_id = get_risk_id(product.w3, risk.tx, risk.id)
+        ensure_risk_payout_defined(risk)
+        return risk.tx
 
     logger.info(f"synching risk {risk.id} onchain")
 
@@ -51,11 +54,28 @@ def sync_risk_onchain(risk: RiskOut, force: bool = False) -> str:
     risk.risk_id = get_risk_id(product.w3, tx, risk.id)
     update_in_collection(risk, RiskOut)
 
-    payout = risk.finalPayout if risk.finalPayout > 0 else max(risk.payout, 0.01)
-    risk.finalPayout = payout
-    update_payout_factor_onchain(risk)
+    ensure_risk_payout_defined(risk)
 
     return tx
+
+
+def ensure_risk_payout_defined(risk: RiskOut) -> None:
+    """Set payout on-chain when missing; persist finalPayout in Mongo."""
+    if not risk.tx:
+        return
+    if not risk.risk_id:
+        risk.risk_id = get_risk_id(product.w3, risk.tx, risk.id)
+    payout = risk.finalPayout if risk.finalPayout > 0 else max(risk.payout, 0.01)
+    risk.finalPayout = payout
+    risk_id_bytes = bytes.fromhex(
+        risk.risk_id[2:] if risk.risk_id.startswith("0x") else risk.risk_id
+    )
+    onchain = product.getRisk(risk_id_bytes)
+    if onchain and onchain[0] and onchain[1][-1]:
+        update_in_collection(risk, RiskOut)
+        return
+    update_payout_factor_onchain(risk)
+    update_in_collection(risk, RiskOut)
 
 
 def get_risk_id(w3: Web3, tx: str, risk_nanoid: str) -> str:
