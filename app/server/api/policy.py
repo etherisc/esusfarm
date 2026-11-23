@@ -24,7 +24,9 @@ router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 async def create_policy(policy: PolicyIn) -> PolicyOut:
     verify_person_exists(policy.personId)
     verify_risk_exists(policy.riskId)
-    return create_in_collection(policy, PolicyOut)
+    created = create_in_collection(policy, PolicyOut)
+    sync_policy_onchain(created)
+    return find_in_collection(created.id, PolicyOut)
 
 @router.post("/{policy_id}/sync", response_description="Policy synched onchain")
 async def create_policy_onchain(policy_id: str):

@@ -1,9 +1,13 @@
 from copy import deepcopy
+from decimal import Decimal
+
 from pydantic import field_validator, Field
 
+from server.config import settings
 from server.error import raise_with_log
 from server.mongo import MongoModel
 from util.date import Date
+from util.money import float_to_decimal
 from util.nanoid import is_valid_nanoid
 
 EXAMPLE_IN = {
@@ -19,11 +23,6 @@ EXAMPLE_OUT = deepcopy(EXAMPLE_IN)
 EXAMPLE_OUT["id"] = "cwNCXQfypiTg"
 EXAMPLE_OUT["nft"] = "2689313703"
 
-# https://www.xe.com/currencyconverter/convert/?Amount=300&From=USD&To=UGX
-MAX_MONETARY_AMOUNT = 5000000.0 # 5 million ugandan shillings
-
-MIN_DATE = Date.create_from("2024-01-01")
-MAX_DATE = Date.create_from("2025-12-31")
 
 class PolicyIn(MongoModel):
     personId: str
@@ -39,30 +38,36 @@ class PolicyIn(MongoModel):
         nanoid = v.strip()
         if not is_valid_nanoid(nanoid):
             raise_with_log(ValueError, f"the id {nanoid} is not a valid nanoid")
-        
+
         return nanoid
 
     @field_validator('subscriptionDate')
     @classmethod
-    def date_must_be_meaningful(cls, v: str) -> str:
+    def date_must_be_valid_iso(cls, v: str) -> str:
         date = Date.create_from(v)
-        date_str = date.to_iso_string()
-        if date < MIN_DATE:
-            raise_with_log(ValueError, f"date {date_str} too early, must be {MIN_DATE} or later")
-        if date > MAX_DATE:
-            raise_with_log(ValueError, f"date {date_str} too late, must be {MAX_DATE} or earlier")
-
-        return date_str
+        return date.to_iso_string()
 
     @field_validator('sumInsuredAmount', 'premiumAmount')
     @classmethod
-    def monetary_amount_must_be_meaningful(cls, amount: float) -> str:
+    def monetary_amount_must_be_meaningful(cls, amount: float) -> float:
         if amount <= 0.0:
             raise_with_log(ValueError, f"amount {amount} invalid, value must not be 0 or negative")
-        if amount > MAX_MONETARY_AMOUNT:
-            raise_with_log(ValueError, f"amount {amount} invalid, value is larger than maximum amount of {MAX_MONETARY_AMOUNT}")
+        ceiling = settings.POLICY_MAX_AMOUNT_UGX
+        if float_to_decimal(amount) > ceiling:
+            raise_with_log(
+                ValueError,
+                f"amount {amount} invalid, value is larger than maximum amount of {ceiling}",
+            )
 
         return amount
+
+    @classmethod
+    def sum_insured_as_decimal(cls, amount: float) -> Decimal:
+        return float_to_decimal(amount)
+
+    @classmethod
+    def premium_as_decimal(cls, amount: float) -> Decimal:
+        return float_to_decimal(amount)
 
     class Config:
         json_schema_extra = {
@@ -79,4 +84,3 @@ class PolicyOut(PolicyIn):
         json_schema_extra = {
             "example": EXAMPLE_OUT
         }
-

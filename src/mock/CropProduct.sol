@@ -53,7 +53,8 @@ contract CropProduct {
         Str seasonStart, // ISO 8601 date, eg "2025-02-18"
         Str seasonEnd,
         uint16 seasonDays
-    ) external {}
+    )
+        external {}
 
     function createLocation(Str locationId, int32 latitude, int32 longitude) external returns (Location location) {}
 
@@ -88,13 +89,7 @@ contract CropProduct {
         return _riskId[id];
     }
 
-    function updatePayoutFactor(
-        RiskId riskId,
-        UFixed payoutFactor
-    )
-        external
-    {
-    }
+    function updatePayoutFactor(RiskId riskId, UFixed payoutFactor) external {}
 
     function setConstants(
         Amount minPremium,
@@ -106,10 +101,21 @@ contract CropProduct {
 
     //--- view functions ----------------------------------------------------//
 
-    function getNftId() public view returns (NftId nftId) { return NftId.wrap(208000205); }
-    function getToken() public view returns (address tokenAddress) { return address(token); }
-    function getInstance() public view returns (address instance) { return address(this); }
-    function getRiskSet() public view returns (address riskSet) { return address(this); }
+    function getNftId() public view returns (NftId nftId) {
+        return NftId.wrap(208000205);
+    }
+
+    function getToken() public view returns (address tokenAddress) {
+        return address(token);
+    }
+
+    function getInstance() public view returns (address instance) {
+        return address(this);
+    }
+
+    function getRiskSet() public view returns (address riskSet) {
+        return address(this);
+    }
     function getTokenHandler() public view virtual returns (address tokenHandler) {}
 
     function crops() public view returns (Str[] memory) {}
@@ -117,7 +123,6 @@ contract CropProduct {
     function getSeason(Str seasonId) public view returns (Season memory season) {}
     function getLocation(Str locationId) public view returns (Location location) {}
     function getRisk(RiskId riskId) public view returns (bool exists, CropRisk memory cropRisk) {}
-
 
     /// @dev converts the provided string into a short string.
     /// code from OZ ShortStrings.toShortString

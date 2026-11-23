@@ -2,9 +2,9 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {AccountingToken} from "../src/AccountingToken.sol";
-import {CropProduct} from "../src/CropProduct.sol";
-import {NftId, RiskId, Str, Timestamp} from "../src/Types.sol";
+import {AccountingToken} from "../src/mock/AccountingToken.sol";
+import {CropProduct} from "../src/mock/CropProduct.sol";
+import {NftId, RiskId, Str, Timestamp} from "../src/mock/Types.sol";
 
 contract CropProductTest is Test {
     address deployer = makeAddr("deployer");

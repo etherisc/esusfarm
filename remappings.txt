@@ -1,0 +1,4 @@
+@openzeppelin/contracts/=lib/gif-next/lib/openzeppelin-contracts/contracts/
+@openzeppelin/contracts-upgradeable/=lib/gif-next/lib/openzeppelin-contracts-upgradeable/contracts/
+forge-std/=lib/forge-std/src/
+@gif/=lib/gif-next/contracts/

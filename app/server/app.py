@@ -1,5 +1,7 @@
-from fastapi import Request
+from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
+
+from server.auth import verify_access_token
 
 from server.api.location import router as router_location
 from server.api.person import router as router_person
@@ -16,6 +18,23 @@ from util.logging import get_logger
 
 logger = get_logger()
 app = create_app(settings)
+
+
+@app.middleware("http")
+async def jwt_auth_middleware(request: Request, call_next):
+    path = request.url.path
+    if path.startswith("/health"):
+        return await call_next(request)
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.lower().startswith("bearer "):
+        return JSONResponse(status_code=401, content={"message": "Unauthorized"})
+    token = auth_header.split(" ", 1)[1].strip()
+    try:
+        verify_access_token(token)
+    except HTTPException as exc:
+        return JSONResponse(status_code=exc.status_code, content={"message": exc.detail})
+    return await call_next(request)
+
 
 # link to api routers
 include_router(app, router_policy, "add policy api")

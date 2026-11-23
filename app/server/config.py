@@ -1,9 +1,18 @@
+from decimal import Decimal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # fastapi settings
     APP_TITLE: str = "Etherisc API Server"
     APP_DEBUG: bool = False
+
+    # fixed Bearer JWT (Dokku env; no OpenBao)
+    API_JWT_SECRET: str | None = None
+    API_JWT_ALGORITHM: str = "HS256"
+
+    # policy validation
+    POLICY_MAX_AMOUNT_UGX: Decimal = Decimal("5000000")
 
     # list of valid crops
     VALID_CROPS: str = "coffee,maize,beans,potatoes"
