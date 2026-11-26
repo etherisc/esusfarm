@@ -1,0 +1,122 @@
+[
+  {
+    "api_id": "kO00zQ5vU_vT",
+    "externalId": "MD0001",
+    "subscriptionDate": "2025-01-01",
+    "nft": "\u2014",
+    "tx": "0x1378b528c343ec12b7e5a221e5ab909b3427c270ffb1e4cadfbb6050899c7f50",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain partial",
+    "notes": "Transaction with hash: '0x1378b528c343ec12b7e5a221e5ab909b3427c270ffb1e4cadfbb60"
+  },
+  {
+    "api_id": "8MbrCd0uH4cb",
+    "externalId": "b45501b5-ce19-4207-83c0-6ead47c2777c",
+    "subscriptionDate": "2025-01-22",
+    "nft": "\u2014",
+    "tx": "0x617f4d26f0eb050532e10e99d1abefc8dae2bdaf46163ce0e8ae8f7b2f13a195",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain partial",
+    "notes": "Transaction with hash: '0x617f4d26f0eb050532e10e99d1abefc8dae2bdaf46163ce0e8ae8f"
+  },
+  {
+    "api_id": "OUh7gD9TME3h",
+    "externalId": "13430afa-4ab3-44cb-98fc-4e435ed91888",
+    "subscriptionDate": "2025-01-25",
+    "nft": "\u2014",
+    "tx": "0x43252d34c350dbc0dd897d666ae2d641d47245d7a156b30bfba9696649e3e80a",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain partial",
+    "notes": "Transaction with hash: '0x43252d34c350dbc0dd897d666ae2d641d47245d7a156b30bfba969"
+  },
+  {
+    "api_id": "mRsNIVzz6kX1",
+    "externalId": "29579fb6-cba3-4594-93b5-366b73d01122",
+    "subscriptionDate": "2025-01-25",
+    "nft": "\u2014",
+    "tx": "0xa7aa4ccabaab0d8177054b648cc131ee28a1df44d09fe283eed86c0fa654899f",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain partial",
+    "notes": "Transaction with hash: '0xa7aa4ccabaab0d8177054b648cc131ee28a1df44d09fe283eed86c"
+  },
+  {
+    "api_id": "SLhTlaSE2EVj",
+    "externalId": "e034306a-68ae-4d20-8378-59a2c6004319",
+    "subscriptionDate": "2025-01-25",
+    "nft": "\u2014",
+    "tx": "0x4ad76467951cef1c5965fa342b8f315aed98f318eec2775cbe3c10671302c942",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain partial",
+    "notes": "Transaction with hash: '0x4ad76467951cef1c5965fa342b8f315aed98f318eec2775cbe3c10"
+  },
+  {
+    "api_id": "24QSvOKZZWQu",
+    "externalId": "e69ac939-f4da-4c1e-a251-06217f6099f9",
+    "subscriptionDate": "2025-01-25",
+    "nft": "\u2014",
+    "tx": "0xa4256bbfd599c3e0f7523509055a265407c478b2bbee6bd9f0fcd18ba6d739e4",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain partial",
+    "notes": "Transaction with hash: '0xa4256bbfd599c3e0f7523509055a265407c478b2bbee6bd9f0fcd1"
+  },
+  {
+    "api_id": "qs2_iK2Azp0_",
+    "externalId": "3cabba42-4127-4a19-8ec0-d58f21ac6af2",
+    "subscriptionDate": "2025-02-03",
+    "nft": "\u2014",
+    "tx": "0x0b5018fba9fd4ab30b2e62f39fd12d5d86c3782b0688f3223f5c6e5cb7e84359",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain partial",
+    "notes": "Transaction with hash: '0x0b5018fba9fd4ab30b2e62f39fd12d5d86c3782b0688f3223f5c6e"
+  },
+  {
+    "api_id": "XaObXWxepg-n",
+    "externalId": "cd08c07c-e445-4c64-93ec-96b905f947eb",
+    "subscriptionDate": "2025-02-18",
+    "nft": "338000205",
+    "tx": "0x9ea1ac6d27e0b90a5cb2a8313f99350b0909a99bb65f4ee2f4f2f4ee4cf7cf23",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain complete",
+    "notes": "Transaction with hash: '0x9ea1ac6d27e0b90a5cb2a8313f99350b0909a99bb65f4ee2f4f2f4"
+  },
+  {
+    "api_id": "f1ZFV0Qrrjvb",
+    "externalId": "3d0687bf-8e0e-44f2-8d2e-d967966eaadd",
+    "subscriptionDate": "2025-02-21",
+    "nft": "348000205",
+    "tx": "0x9fd204ff5458bed469ab826f46ec0b2ed22fdd5d862a9b5d1c9dac46e531c708",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain complete",
+    "notes": "Transaction with hash: '0x9fd204ff5458bed469ab826f46ec0b2ed22fdd5d862a9b5d1c9dac"
+  },
+  {
+    "api_id": "UOH-uCnn1RKs",
+    "externalId": "177acc86-be2f-41d8-bbd0-458c9985ac21",
+    "subscriptionDate": "2025-02-28",
+    "nft": "358000205",
+    "tx": "0xf80ec62175f9ae979d7b81b32e879aaf21b85aa0ca060e2545508c3534871b49",
+    "chain_status": "not found",
+    "product": "\u2014",
+    "mongo_status": "on-chain complete",
+    "notes": "Transaction with hash: '0xf80ec62175f9ae979d7b81b32e879aaf21b85aa0ca060e2545508c"
+  },
+  {
+    "api_id": "BRj2-QAF1KKH",
+    "externalId": "accept-1795476889",
+    "subscriptionDate": "2026-05-10",
+    "nft": "408000205",
+    "tx": "0x53a1e75b01390d430be41fee199bdee4ea34e4359f644dfff1d8b66ed5c3cacb",
+    "chain_status": "success",
+    "product": "adapted cdd740",
+    "mongo_status": "on-chain complete"
+  }
+]

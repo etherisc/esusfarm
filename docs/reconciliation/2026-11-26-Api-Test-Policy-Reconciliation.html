@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>api-test policy reconciliation</title>
+  <style>
+    @page { margin: 18mm 15mm; size: A4 landscape; }
+    body { font-family: "Segoe UI", Helvetica, Arial, sans-serif; font-size: 9pt; line-height: 1.35; color: #1a1a1a; }
+    h1 { font-size: 14pt; color: #0d3d56; margin: 0 0 6pt; }
+    h2 { font-size: 10.5pt; color: #0d3d56; margin: 14pt 0 5pt; }
+    .meta { font-size: 8.5pt; color: #555; border-bottom: 1px solid #ccc; padding-bottom: 8pt; margin-bottom: 12pt; }
+    table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 8pt; }
+    th, td { border: 1px solid #aaa; padding: 4pt 5pt; vertical-align: top; }
+    th { background: #e8f0f4; }
+    code { font-size: 8pt; }
+    .note { background: #fff8e6; border-left: 3px solid #c9a227; padding: 6pt 8pt; margin: 8pt 0; font-size: 8.5pt; }
+    .footer { font-size: 8pt; color: #666; margin-top: 16pt; }
+  </style>
+</head>
+<body>
+
+<h1>api-test policy reconciliation (scope §1.9)</h1>
+<p class="meta">
+  Environment: <code>https://api-test.esusfarm.etherisc.com</code> &nbsp;|&nbsp;
+  Export: 2026-11-26 UTC &nbsp;|&nbsp;
+  Policies in Mongo: <strong>198</strong> &nbsp;|&nbsp;
+  Attachment: <strong>api-test-policies-all.csv</strong>
+</p>
+
+<div class="note">
+  <strong>23 September 2026 (scope PDF):</strong> Policy documents have <strong>no createdAt</strong> field.
+  <strong>Zero</strong> rows have <code>subscriptionDate</code> 2026-09-23.
+  Please send any <code>externalId</code> list from that session so we can tag those rows in the CSV.
+  This report reconciles <strong>all</strong> policies currently in test Mongo.
+</div>
+
+<h2>Summary</h2>
+<table>
+  <tr><th>Category</th><th>Count</th><th>Meaning</th></tr>
+  <tr><td>Mongo only</td><td>187</td><td>No <code>tx</code> — not recorded on-chain in DB</td></tr>
+  <tr><td>On-chain partial</td><td>7</td><td><code>tx</code> present, <code>nft</code> missing</td></tr>
+  <tr><td>On-chain complete</td><td>4</td><td><code>tx</code> and <code>nft</code> present</td></tr>
+</table>
+
+<h2>Policies with transaction hash in Mongo (11)</h2>
+<table>
+  <tr>
+    <th>API id</th><th>externalId</th><th>subscriptionDate</th><th>nft</th><th>Amoy check</th><th>Notes</th>
+  </tr>
+  <tr>
+    <td>BRj2-QAF1KKH</td><td>accept-1795476889</td><td>2026-05-10</td><td>408000205</td><td><strong>OK</strong></td><td>ESF-1.03 product 0x20b1…</td>
+  </tr>
+  <tr><td>XaObXWxepg-n</td><td>cd08c07c-e445-…</td><td>2025-02-18</td><td>338000205</td><td>Receipt n/f</td><td>Legacy test era</td></tr>
+  <tr><td>f1ZFV0Qrrjvb</td><td>3d0687bf-8e0e-…</td><td>2025-02-21</td><td>348000205</td><td>Receipt n/f</td><td>Legacy test era</td></tr>
+  <tr><td>UOH-uCnn1RKs</td><td>177acc86-be2f-…</td><td>2025-02-28</td><td>358000205</td><td>Receipt n/f</td><td>Legacy test era</td></tr>
+  <tr><td>kO00zQ5vU_vT</td><td>MD0001</td><td>2025-01-01</td><td>—</td><td>Receipt n/f</td><td>tx only</td></tr>
+  <tr><td>8MbrCd0uH4cb</td><td>b45501b5-ce19-…</td><td>2025-01-22</td><td>—</td><td>Receipt n/f</td><td>tx only</td></tr>
+  <tr><td>mRsNIVzz6kX1</td><td>29579fb6-cba3-…</td><td>2025-01-25</td><td>—</td><td>Receipt n/f</td><td>tx only</td></tr>
+  <tr><td>SLhTlaSE2EVj</td><td>e034306a-68ae-…</td><td>2025-01-25</td><td>—</td><td>Receipt n/f</td><td>tx only</td></tr>
+  <tr><td>OUh7gD9TME3h</td><td>13430afa-4ab3-…</td><td>2025-01-25</td><td>—</td><td>Receipt n/f</td><td>tx only</td></tr>
+  <tr><td>24QSvOKZZWQu</td><td>e69ac939-f4da-…</td><td>2025-01-25</td><td>—</td><td>Receipt n/f</td><td>tx only</td></tr>
+  <tr><td>qs2_iK2Azp0_</td><td>3cabba42-4127-…</td><td>2025-02-03</td><td>—</td><td>Receipt n/f</td><td>tx only</td></tr>
+</table>
+<p><em>“Receipt n/f” = hash stored in Mongo; receipt not returned from Polygon Amoy RPC on 2026-11-26 (retention / legacy product). See CSV for full tx hashes and Polygonscan links.</em></p>
+
+<h2>Etherisc acceptance externalIds (<code>accept-*</code>)</h2>
+<table>
+  <tr><th>externalId</th><th>On-chain in Mongo</th><th>Notes</th></tr>
+  <tr><td>accept-1795476889</td><td>Yes</td><td>Successful post-deploy smoke</td></tr>
+  <tr><td>accept-1795475818 … 6797</td><td>No</td><td>Failed attempts pre-fix; ignore for go-live</td></tr>
+</table>
+
+<p class="footer">Etherisc · Confidential eSusFarm · Regenerate: <code>scripts/mongo_policy_reconciliation_export.py</code></p>
+</body>
+</html>

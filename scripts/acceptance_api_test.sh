@@ -31,10 +31,10 @@ PER_ID=$(curl -sS -X POST "$BASE/person/" -H "$AUTH" -H 'Content-Type: applicati
   -d "{\"locationId\":\"$LOC_ID\",\"externalId\":\"$EXT-p\",\"firstName\":\"A\",\"lastName\":\"B\",\"gender\":\"f\",\"mobilePhone\":\"+256700000099\"}" \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
 
-# On-chain MIN_PREMIUM is 10 LCA (6 decimals) → major units >= 10
-BODY="{\"personId\":\"$PER_ID\",\"riskId\":\"$RISK_ID\",\"externalId\":\"$EXT\",\"subscriptionDate\":\"2026-05-10\",\"currency\":\"USD\",\"sumInsuredAmount\":200,\"premiumAmount\":10.01}"
+# UGX-only on-chain; api-test validation 1–5,000,000 UGX (on-chain limits must match via setConstants)
+BODY="{\"personId\":\"$PER_ID\",\"riskId\":\"$RISK_ID\",\"externalId\":\"$EXT\",\"subscriptionDate\":\"2026-05-10\",\"currency\":\"UGX\",\"sumInsuredAmount\":200000,\"premiumAmount\":40000}"
 curl -sS -w "\nHTTP:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' -d "$BODY"
 curl -sS -w "\nrepeat:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' -d "$BODY"
-CONFLICT_BODY="${BODY/10.01/11.01}"
+CONFLICT_BODY="${BODY/40000/41000}"
 curl -sS -w "\nconflict:%{http_code}\n" -X POST "$BASE/policy/" -H "$AUTH" -H 'Content-Type: application/json' \
   -d "$CONFLICT_BODY"
