@@ -17,9 +17,14 @@ def send_eth(sender: Wallet, rcpt: str, amount: int, gas_price: int) -> str:
     }
     signed_tx = w3.eth.account.sign_transaction(tx, sender.account.key)
     logger.info(f"{sender.address} sending {amount} wei to {rcpt}")
-    #send the transaction
-    tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+    try:
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+    except Exception as exc:
+        if "already known" not in str(exc).lower():
+            raise
+        tx_hash = signed_tx.hash
+        logger.info(f"Transaction already pending; using {tx_hash.hex()}")
     logger.info(f"Transaction sent: {tx_hash.hex()}")
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    logger.info(f"Transaction mined: {tx_hash}")
-    
+    logger.info(f"Transaction mined: {tx_hash.hex()}")
+    return tx_hash.hex()
