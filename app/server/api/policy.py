@@ -1,4 +1,5 @@
 from typing import List
+from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from fastapi.routing import APIRouter
 
@@ -23,6 +24,11 @@ router = APIRouter(prefix=PATH_PREFIX, tags=TAGS)
 
 @router.post("/", response_model=PolicyOut, response_description="Policy data created")
 async def create_policy(policy: PolicyIn) -> PolicyOut:
+    if policy.currency != "UGX":
+        raise HTTPException(
+            status_code=422,
+            detail="only UGX policies are recorded on-chain on api-test",
+        )
     verify_person_exists(policy.personId)
     verify_risk_exists(policy.riskId)
     existing = assert_idempotent_match(

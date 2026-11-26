@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>eSusFarm – api-test clarifications</title>
+  <style>
+    @page { margin: 22mm 18mm; }
+    body {
+      font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.45;
+      color: #1a1a1a;
+      max-width: 100%;
+    }
+    h1 { font-size: 16pt; font-weight: 600; margin: 0 0 4pt; color: #0d3d56; }
+    .meta { font-size: 9.5pt; color: #444; margin-bottom: 18pt; border-bottom: 1px solid #ccc; padding-bottom: 10pt; }
+    h2 { font-size: 11.5pt; margin: 16pt 0 6pt; color: #0d3d56; }
+    p { margin: 0 0 8pt; }
+    table { width: 100%; border-collapse: collapse; margin: 8pt 0 12pt; font-size: 9.5pt; }
+    th, td { border: 1px solid #bbb; padding: 6pt 8pt; text-align: left; vertical-align: top; }
+    th { background: #eef4f7; font-weight: 600; }
+    ul { margin: 6pt 0 10pt; padding-left: 18pt; }
+    li { margin-bottom: 4pt; }
+    .agreed { background: #f4faf4; padding: 8pt 10pt; border-left: 3px solid #2d6a4f; margin: 8pt 0; }
+    .footer { margin-top: 24pt; font-size: 9pt; color: #666; }
+  </style>
+</head>
+<body>
+
+<h1>Clarifications – api-test fulfillment &amp; joint acceptance</h1>
+<p class="meta">
+  <strong>To:</strong> eSusFarm (Azzi) &nbsp;|&nbsp;
+  <strong>From:</strong> Etherisc GmbH – Christoph &nbsp;|&nbsp;
+  <strong>Date:</strong> 26 November 2026 &nbsp;|&nbsp;
+  <strong>Reference:</strong> Scope PDF 2026-10-14 (AN20260004); Fulfillment doc 2026-11-24 &nbsp;|&nbsp;
+  <strong>Environment:</strong> <code>https://api-test.esusfarm.etherisc.com</code>
+</p>
+
+<p>Thank you for reviewing the fulfillment document and securing the test credential. Below are our answers to your questions before Global changes and the joint testing call.</p>
+
+<h2>1. Mandatory <code>currency</code> (no silent default to UGX)</h2>
+<p>The fulfillment note that <strong><code>currency</code> defaults to UGX</strong> reflects the <strong>current</strong> API behaviour (<code>PolicyIn</code> has <code>default="UGX"</code>). The approved scope treats <strong><code>currency</code> as mandatory</strong>.</p>
+<div class="agreed">
+  <strong>Agreed:</strong> We will require <code>currency</code> on <code>POST /policy</code> and return a validation error if it is missing. We will deploy this to api-test and update the fulfillment document accordingly.
+</div>
+
+<h2>2. Only UGX policies on-chain for now</h2>
+<p>With currency routing (Part 2.3) and additional currency products (Part 2.4) not in scope, <strong>only UGX policies should be recorded on-chain</strong> against the single Amoy CropProduct.</p>
+<p><strong>Current behaviour (gap):</strong> The API validates multi-currency <em>format</em>, but on-chain sync does <strong>not</strong> block non-UGX. A policy with e.g. <code>currency: "USD"</code> can still be written to the UGX product (amounts are converted to token base units only).</p>
+<div class="agreed">
+  <strong>Agreed:</strong> For <code>POST /policy</code>, <strong>on-chain recording only when <code>currency</code> is <code>UGX</code></strong>. Other currencies → <strong>422</strong> with a clear message (multi-currency format can still be validated in tests without chain). Non-UGX on-chain recording awaits Part 2.3 / 2.4.
+</div>
+
+<h2>3. Sum insured units and realistic Uganda amounts</h2>
+<p>The fulfillment doc mixed <strong>API examples</strong> with <strong>on-chain test limits</strong>. Clarification:</p>
+
+<table>
+  <thead>
+    <tr><th>Layer</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>On-chain (Accounting Token, 6 decimals)</strong></td>
+      <td>Sum insured and premium are passed as <strong>base units</strong> = <strong>major amount × 10⁶</strong> (same conversion as the API <code>major_to_base_units</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>Current Amoy test product</strong><br/><code>0x20b1c9F88a7AaA4f7457e6f5aCAF05033e13229C</code></td>
+      <td>
+        On-chain today:<br/>
+        Min sum insured <strong>200 × 10⁶</strong>, max <strong>1 × 10⁹</strong> → <strong>200–1,000</strong> in <strong>major accounting units</strong> (not 600,000 UGX).<br/>
+        Premium min <strong>10 × 10⁶</strong>, max <strong>99 × 10⁶</strong>.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>API doc examples (e.g. 600,000 UGX)</strong></td>
+      <td>Illustrate <strong>Uganda business amounts</strong> against API ceilings (<code>POLICY_MAX_AMOUNT_UGX</code>, default 5,000,000). They are <strong>not</strong> valid against the <strong>current test</strong> chain limits unless we raise <code>setConstants</code> on the product.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Joint acceptance used <strong>200</strong> sum insured and <strong>≥ 10</strong> premium so transactions fit today’s test constants. For realistic UGX (e.g. hundreds of thousands), we will update <strong><code>setConstants</code> on the test CropProduct</strong> after you confirm the bands you want for api-test.</p>
+
+<h2>4. Decimal exactness vs USD vs UGX-only chain</h2>
+<ul>
+  <li><strong>Two-decimal rules (USD, ZAR, NGN, SZL):</strong> Validated at the <strong>API only</strong> until separate on-chain products exist; covered by automated tests and 422 cases — <strong>no on-chain USD policy</strong> in this phase.</li>
+  <li><strong>On-chain decimal exactness (6 decimals on the token):</strong> Use <code>currency: "UGX"</code> and whole-unit amounts (e.g. premium 40,000 → 40,000,000,000 base units). Fractional UGX remains rejected by design.</li>
+  <li>We will adjust the Etherisc acceptance script and fulfillment test plan so the <strong>on-chain E2E path uses UGX only</strong>, not USD.</li>
+</ul>
+
+<h2>5. Swagger, OpenAPI, and JWT</h2>
+<table>
+  <thead>
+    <tr><th>Topic</th><th>Detail</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>OpenAPI contract</strong></td>
+      <td>
+        FastAPI is <strong>code-first</strong>.<br/>
+        Interactive docs: <code>https://api-test.esusfarm.etherisc.com/docs</code><br/>
+        Raw JSON: <code>https://api-test.esusfarm.etherisc.com/openapi.json</code><br/>
+        This matches the deployed api-test build; we treat it as the integration contract for this scope, versioned with releases on <code>main</code> / api-test deploys.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Test JWT expiry</strong></td>
+      <td>Tokens are HS256, minted with <code>scripts/issue_api_jwt.py</code> using the server’s <code>API_JWT_SECRET</code>. Default validity is <strong>10 years</strong> (<code>exp</code> claim in the payload).</td>
+    </tr>
+    <tr>
+      <td><strong>Rotation</strong></td>
+      <td>Set a new <code>API_JWT_SECRET</code> on Dokku → mint a new token → deliver via secure channel. Old tokens stop working immediately. We coordinate rotation with you; no silent rotation without notice.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. Acceptance checklist status</h2>
+<table>
+  <thead>
+    <tr><th>Item</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Internal dry run (health, auth, policy E2E with <code>nft</code> / <code>tx</code>, idempotency)</td>
+      <td><strong>Completed</strong> on api-test.</td>
+    </tr>
+    <tr>
+      <td>Ready for eSusFarm access</td>
+      <td><strong>Yes</strong> — api-test URL and JWT delivered.</td>
+    </tr>
+    <tr>
+      <td>September 2026 reconciliation table (§7.6)</td>
+      <td><strong>Delivered 2026-11-26</strong> — see attachment <em>2026-11-26-Api-Test-Policy-Reconciliation.pdf</em> and CSV (198 policies; session-date filter note inside).</td>
+    </tr>
+    <tr>
+      <td>Documentation / code alignment</td>
+      <td>Updates for mandatory currency, UGX-only on-chain, chain limits, and test plan will follow the agreed changes above.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>7. Suggested next steps</h2>
+<ol>
+  <li>eSusFarm confirms desired <strong>UGX min/max sum insured and premium</strong> for test chain constants.</li>
+  <li>Etherisc deploys <strong>API changes</strong> (mandatory currency, UGX-only on-chain) and <strong>chain <code>setConstants</code></strong> if needed.</li>
+  <li>Short “api-test ready” note with revised fulfillment PDF.</li>
+  <li>eSusFarm implements Global changes, runs local checks, then we schedule the <strong>joint api-test session</strong>.</li>
+</ol>
+
+<p class="footer">
+  Etherisc GmbH · etherisc.com · Confidential – prepared for eSusFarm Africa<br/>
+  Companion: <em>2026-11-24 Scope Fulfillment</em> (markdown in repo <code>docs/</code>)
+</p>
+
+</body>
+</html>

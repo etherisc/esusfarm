@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     API_JWT_ALGORITHM: str = "HS256"
 
     # policy validation
+    POLICY_MIN_AMOUNT_UGX: Decimal = Decimal("1")
     POLICY_MAX_AMOUNT_UGX: Decimal = Decimal("5000000")
     POLICY_MAX_AMOUNT_ZAR: Decimal = Decimal("5000000")
     POLICY_MAX_AMOUNT_NGN: Decimal = Decimal("5000000")
@@ -21,6 +22,11 @@ class Settings(BaseSettings):
     def policy_ceiling(self, currency: str) -> Decimal:
         key = f"POLICY_MAX_AMOUNT_{currency.upper()}"
         return getattr(self, key, self.POLICY_MAX_AMOUNT_UGX)
+
+    def policy_floor(self, currency: str) -> Decimal:
+        if currency.upper() == "UGX":
+            return self.POLICY_MIN_AMOUNT_UGX
+        return Decimal("1")
 
     # list of valid crops
     VALID_CROPS: str = "coffee,maize,beans,potatoes"

@@ -31,7 +31,7 @@ class PolicyIn(MongoModel):
     riskId: str
     externalId: str
     subscriptionDate: str
-    currency: str = Field(default="UGX")
+    currency: str = Field(..., min_length=3, max_length=3)
     sumInsuredAmount: float | str
     premiumAmount: float | str
 
@@ -63,12 +63,24 @@ class PolicyIn(MongoModel):
         currency = self.currency
         self._sum_insured_decimal = parse_amount(self.sumInsuredAmount, currency)
         self._premium_decimal = parse_amount(self.premiumAmount, currency)
-        if self._sum_insured_decimal > settings.policy_ceiling(currency):
+        floor = settings.policy_floor(currency)
+        ceiling = settings.policy_ceiling(currency)
+        if self._sum_insured_decimal < floor:
+            raise_with_log(
+                ValueError,
+                f"sumInsuredAmount below minimum {floor} for {currency}",
+            )
+        if self._premium_decimal < floor:
+            raise_with_log(
+                ValueError,
+                f"premiumAmount below minimum {floor} for {currency}",
+            )
+        if self._sum_insured_decimal > ceiling:
             raise_with_log(
                 ValueError,
                 f"sumInsuredAmount exceeds configured ceiling for {currency}",
             )
-        if self._premium_decimal > settings.policy_ceiling(currency):
+        if self._premium_decimal > ceiling:
             raise_with_log(
                 ValueError,
                 f"premiumAmount exceeds configured ceiling for {currency}",

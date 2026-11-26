@@ -33,9 +33,9 @@ Authorization: Bearer …
 }
 ```
 
-- **UGX:** whole units only.
-- **ZAR, NGN, USD, SZL:** up to 2 decimal places (format validation); **only UGX** is written on-chain today.
-- Legacy numeric amounts without `currency` default to `UGX`.
+- **`currency` is required** (no default).
+- **`POST /policy` (api-test):** **UGX only** — other currencies → **422** before Mongo write.
+- **UGX:** whole units only; **1–5,000,000** sum insured and premium (test env validation).
 - Creates Mongo record, syncs on-chain, returns `id`, `nft`, `tx` when successful.
 - Same `externalId` + same payload → existing record (`200`).
 - Same `externalId` + different payload → `409`.

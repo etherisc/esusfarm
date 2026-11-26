@@ -1,7 +1,10 @@
 # eSusFarm – Acceptance test script
 
 **Target:** `https://api-test.esusfarm.etherisc.com`  
-**Status:** In progress – `api-test` on adapted Amoy product (`0x20b1…`, head `4888067` on Dokku).
+**Status:** In progress – `api-test` on adapted Amoy product (`0x20b1…`).
+
+**Fulfillment document for eSusFarm (scope PDF + user guide + full test plan):**  
+[2026-11-24-Scope-Fulfillment.md](./2026-11-24-Scope-Fulfillment.md)
 
 ## Preconditions
 
@@ -51,11 +54,12 @@ Or manual curl chain: `POST /location` → `/config` → `/risk` → `/person` �
 
 ## 6. Reconciliation 2026-09-23
 
-| Record id | On-chain | Tx / reason |
-|---|---|---|
-| _TBD_ | | |
+**Deliverable (2026-11-26):** [reconciliation/2026-11-26-Api-Test-Policy-Reconciliation.pdf](./reconciliation/2026-11-26-Api-Test-Policy-Reconciliation.pdf) + full CSV [reconciliation/api-test-policies-all.csv](./reconciliation/api-test-policies-all.csv).
+
+- **0** policies with `subscriptionDate` 2026-09-23 in Mongo (no `createdAt` field); eSusFarm may supply `externalId` list for that session.
+- **198** policies exported; **11** with `tx` in DB; **1** verified on adapted product after Nov 2025 cutover.
 
 ## Dry run sign-off
 
-- [ ] Internal dry run completed
-- [ ] Ready for eSusFarm access
+- [x] Internal dry run completed
+- [x] Ready for eSusFarm access
